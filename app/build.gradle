@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "com.applikationsprogramvara.osmviewer"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 8
+        versionName "1.4.3 20-08-08"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            def keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                def keystoreProperties = new Properties()
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+                keyAlias keystoreProperties['releaseKeyAlias']
+                keyPassword keystoreProperties['releaseKeyPassword']
+                storeFile file(rootDir.getCanonicalPath() + '/' + keystoreProperties['releaseKeyStore'])
+                storePassword keystoreProperties['releaseStorePassword']
+            }
+
+        }
+    }
+
+    buildTypes {
+        debug {
+
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation 'org.osmdroid:osmdroid-android:6.1.6'
+    implementation 'com.github.MKergall:osmbonuspack:6.6.0'
+
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+
+    implementation 'androidx.preference:preference:1.1.1'
+
+    if (rootProject.file("osmviewer_addon").exists()) {
+        debugImplementation project(':osmviewer_addon')
+    }
+}
+
+
+play {
+    track = 'beta' // alpha / beta / production
+    releaseName = android.defaultConfig.versionName
+    releaseStatus = "draft"
+    defaultToAppBundles = true
+    serviceAccountCredentials = file("../service-key.json")
+}

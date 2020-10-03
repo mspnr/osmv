@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="mainScreen"
+    >
+
+    <PreferenceCategory android:key="General"
+        android:title="@string/stg_cat_general">
+
+        <CheckBoxPreference android:key="HttpSource"
+            android:title="@string/stg_http_download_title"
+            android:defaultValue="false"
+            android:summary="@string/stg_http_download_summary"
+            />
+
+        <ListPreference android:key="UnitsOfMeasure"
+            android:title="@string/stg_units"
+            android:defaultValue="metric"
+            android:entries="@array/unitsOfMeasure"
+            android:entryValues="@array/unitsOfMeasureAlias"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="Experimental"
+        android:title="@string/stg_cat_experimental">
+
+        <CheckBoxPreference android:key="ExperimentalStickCenterOnZoom"
+            android:title="@string/stg_experimental_stick_center_on_zoom_title"
+            android:defaultValue="false"
+            android:summary="@string/stg_experimental_stick_center_on_zoom_summary"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/stg_cat_about" >
+        <Preference
+            android:key="MarketLink"
+            android:title="@string/stg_marketlink"
+            />
+
+        <Preference
+            android:key="About"
+            android:title="@string/stg_versions"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

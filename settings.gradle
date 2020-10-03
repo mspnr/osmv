@@ -1,0 +1,5 @@
+rootProject.name='OSM Viewer'
+include ':app'
+if (new File(rootProject.projectDir, "osmviewer_addon").exists()) {
+    include ':osmviewer_addon'
+}
