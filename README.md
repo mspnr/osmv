@@ -11,7 +11,7 @@ width="240"/></a>
 
 ## Screenshots
 
-<img src='https://lh3.googleusercontent.com/f3TOAL5VkbrQL1myBf4ayxqy1kKYiZw1pPU6xfhEoGBSy3T8FBrY-EtEdh3nxszLlbA=w2128-h1304' height='500'/> <img src='https://lh3.googleusercontent.com/5cjgCNK6y8gvpwV2d0QBveC9qusfbwInkIoMdZqec0lvfTjCnF1B4s57IG2okkxKQ1E4=w2128-h1304' height='500'/>
+<img src='https://lh3.googleusercontent.com/f3TOAL5VkbrQL1myBf4ayxqy1kKYiZw1pPU6xfhEoGBSy3T8FBrY-EtEdh3nxszLlbA=w2128-h1304' height='400'/> <img src='https://lh3.googleusercontent.com/5cjgCNK6y8gvpwV2d0QBveC9qusfbwInkIoMdZqec0lvfTjCnF1B4s57IG2okkxKQ1E4=w2128-h1304' height='400'/>
 
 ## Functions
 
@@ -25,12 +25,14 @@ width="240"/></a>
  * Open a location using the app: click on a link with coordinated or address
  * Switch between matric and imperial units in settings
  
-## Requested functions and plans
+## Requested functions, ideas and plans
 
  * Add other maps - ok
  * Offline - probably yes
  * Search - probably yes
  * Turn-by-turn navigation - definitely not
+ * Calculate gradient while moving
+ * Tracking with fixing user not in the center of the screen
 
 # Development
 
