@@ -714,7 +714,13 @@ public class MainActivity extends AppCompatActivity {
 
 //        Log.d("MyApp3", "animation start " +  map.getMapCenter().getLatitude() + "; " + map.getMapCenter().getLongitude() + " / (" + requestedDiff + ") " + map.getZoomLevelDouble());
         double startZoom = map.getZoomLevelDouble();
-        double targetZoom = Math.round(map.getZoomLevelDouble() + requestedDiff);
+        double targetZoom;
+        if (map.getZoomLevelDouble() != Math.round(map.getZoomLevelDouble())) {
+            if (requestedDiff > 0)
+                targetZoom = Math.ceil(map.getZoomLevelDouble());
+            else
+                targetZoom = Math.floor(map.getZoomLevelDouble());
+        } else targetZoom = Math.round(map.getZoomLevelDouble() + requestedDiff);
 
 //        map.getController().zoomTo(targetZoom, ANIMATION_SPEED_FAST);
 
