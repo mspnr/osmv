@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/collapsablePanel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    tools:showIn="@layout/aux_buttons_panel">
+
+    <LinearLayout
+        android:id="@+id/collapsablePart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_settings" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnRuler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_ruler"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:gravity="center"
+            android:contentDescription="@string/btn_gps" />
+
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_settings" />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnCollapseExpand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_chevron_right"
+        android:background="@color/btnBack"
+        android:padding="@dimen/btnPadding"
+        android:contentDescription="@string/btn_settings" />
+
+</LinearLayout>

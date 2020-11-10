@@ -1,5 +1,6 @@
 package com.applikationsprogramvara.osmviewer;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,18 +12,20 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.preference.PreferenceManager;
@@ -47,16 +50,17 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.tilesource.TileSourcePolicy;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
+import org.osmdroid.tileprovider.MapTileProviderBase;
+import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
@@ -65,6 +69,7 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -80,68 +85,45 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_SETTINGS = 151;
 
-    public static final OnlineTileSourceBase HTTP_MAPNIK = new XYTileSource("HttpMapnik",
-            0, 19, 256, ".png", new String[]{
-            "http://a.tile.openstreetmap.org/",
-            "http://b.tile.openstreetmap.org/",
-            "http://c.tile.openstreetmap.org/"}, "© OpenStreetMap contributors",
-            new TileSourcePolicy(2,
-                    TileSourcePolicy.FLAG_NO_BULK
-                            | TileSourcePolicy.FLAG_NO_PREVENTIVE
-                            | TileSourcePolicy.FLAG_USER_AGENT_MEANINGFUL
-                            | TileSourcePolicy.FLAG_USER_AGENT_NORMALIZED
-            ));
-
-    public static final OnlineTileSourceBase HTTP_OPENTOPOMAP = new XYTileSource("HttpOpenTopoMap",
-            0, 17, 256, ".png", new String[]{
-                    "http://a.tile.opentopomap.org/",
-                    "http://b.tile.opentopomap.org/",
-                    "http://c.tile.opentopomap.org/"},
-            "Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)");
-
-
-
-    public static final OnlineTileSourceBase[] MAP_SOURCES_STD = new OnlineTileSourceBase[] {
-            TileSourceFactory.MAPNIK,
-            TileSourceFactory.OpenTopo
-    };
-
-    public static final OnlineTileSourceBase[] MAP_SOURCES_HTTP = new OnlineTileSourceBase[] {
-            HTTP_MAPNIK,
-            HTTP_OPENTOPOMAP
-    };
-
-    public static final int[] MAP_ICONS = new int[] {
-            R.drawable.ic_map_usual,
-            R.drawable.ic_map_topo
-    };
 
     private static final int REQUEST_LOCATION_DISPLAY = 123;
     private static final int REQUEST_LOCATION_JUMP    = 124;
 
     public static final int ANIMATION_SPEED_FAST = 250;
     public static final int ANIMATION_SPEED_SLOW = 500;
-    int mapSourceIndex;
+    private MapsCatalog mapsCatalog;
 
     @BindView(R.id.map) MapView map;
     @BindView(R.id.tvDebugInfo) TextView tvDebugInfo;
     @BindView(R.id.tvZoom) TextView tvZoom;
     @BindView(R.id.tvSpeed) TextView tvSpeed;
+    @BindView(R.id.tvDistance) TextView tvDistance;
     @BindView(R.id.tvAltitude) TextView tvAltitude;
     @BindView(R.id.btnJumpToLocation) ImageButton btnJumpToLocation;
     @BindView(R.id.btnGPS) ImageButton btnGPS;
     @BindView(R.id.btnChangeSource) ImageButton btnChangeSource;
+    @BindView(R.id.userTouchSurface) UserTouchSurface userTouchSurface;
+    @BindView(R.id.btnRuler) ImageButton btnRuler;
+    @BindView(R.id.btnOverlay) ImageButton btnOverlay;
+    @BindView(R.id.btnCollapseExpand) ImageButton btnCollapseExpand;
+    @BindView(R.id.collapsablePart) View collapsablePart;
+    @BindView(R.id.mainLayout) View mainLayout;
 
     private EnhancedSharedPreferences prefs;
     private MyLocationNewOverlay mLocationOverlay;
     //private boolean followMode;
     private boolean showDebugInfo;
     private ScaleBarOverlay mScaleBarOverlay;
-    private OnlineTileSourceBase[] mapSource;
     private UnitCalcInterface unitCalc;
     private GeoPoint requiredCenter;
     private boolean experimentalStickCenterOnZoom;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.ROOT); // yy-MM-dd HH:mm:ss
+    private Polyline rulerLine;
+    private boolean continuousRulerMode;
+    private List<DebugItem> debugList;
+    private TilesOverlay overlay;
+    private Location prevLocation;
+
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,6 +165,31 @@ public class MainActivity extends AppCompatActivity {
         mScaleBarOverlay.setAlignBottom(true);
         mScaleBarOverlay.setAlignRight(true);
 
+        mapsCatalog = new MapsCatalog(prefs, (source, image) -> {
+            map.setTileSource(source);
+            btnChangeSource.setImageResource(image);
+        }, (show, source) -> {
+            if (overlay != null) {
+                map.getOverlays().remove(overlay);
+                overlay = null;
+            }
+
+            if (show) {
+                MapTileProviderBase provider = new MapTileProviderBasic(this);
+                provider.setTileSource(source);
+                overlay = new TilesOverlay(provider, this);
+                overlay.setLoadingBackgroundColor(Color.TRANSPARENT);
+                provider.getTileRequestCompleteHandlers().add(map.getTileRequestCompleteHandler());
+                map.getOverlays().add(overlay);
+
+                btnOverlay.setImageResource(R.drawable.ic_overlay_on);
+            } else {
+                btnOverlay.setImageResource(R.drawable.ic_overlay_off);
+            }
+
+            map.invalidate();
+        });
+
         loadSettings();
 
 
@@ -196,12 +203,7 @@ public class MainActivity extends AppCompatActivity {
         GeoPoint startPoint = new GeoPoint(prefs.getDouble("mapPosX", 48.8583), prefs.getDouble("mapPosY", 2.2944));
         mapController.setCenter(startPoint);
 
-        findViewById(R.id.mainLayout).addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            mScaleBarOverlay.setScaleBarOffset(
-                    (int) (getResources().getDisplayMetrics().density * (16 + 48 + (BuildConfig.DEBUG ? 48 : 0))) + v.getPaddingRight(),
-                    (int) (getResources().getDisplayMetrics().density * 16) + v.getPaddingBottom()
-            );
-        });
+        mainLayout.addOnLayoutChangeListener((v, l, t, r, b, l2, t2, r2, b2) -> shiftScaleBar());
         map.getOverlays().add(mScaleBarOverlay);
 
         map.getOverlays().add(0, new Overlay() {
@@ -240,6 +242,32 @@ public class MainActivity extends AppCompatActivity {
         tvZoom.setText("");
         tvSpeed.setText("");
 
+        userTouchSurface.setCallback(new TwoFingerDrag(getBaseContext(), new TwoFingerDrag.Listener() {
+            @Override
+            public void onOneFinger(@Nullable MotionEvent event) {
+
+                if (event != null)
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        drawRuler(event.getX(), event.getY(), true);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                    case MotionEvent.ACTION_UP:
+                        drawRuler(event.getX(), event.getY(), false);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onTwoFingers(MotionEvent event) {
+                map.dispatchTouchEvent(event);
+            }
+        }));
+        //map.dispatchTouchEvent()
+        tvDistance.setVisibility(View.GONE);
+
+        expandCollapsePanel(prefs.getBoolean("AuxButtonsCollapsed", false));
 
         setDebugInfo(prefs.getBoolean("ShowDebugInfo", false));
 
@@ -267,9 +295,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSettings() {
-        mapSourceIndex = prefs.getInt("mapSourceIndex", 0);
-        mapSource = prefs.getBoolean("HttpSource", false) ? MAP_SOURCES_HTTP : MAP_SOURCES_STD;
-        mapSetSource();
+
+        mapsCatalog.load();
 
         switch (prefs.getString("UnitsOfMeasure", "metric")) {
             default:
@@ -379,10 +406,22 @@ public class MainActivity extends AppCompatActivity {
             else
                 tvSpeed.setText(String.format(Locale.ROOT, "%.0f", speed));
 
-            if (showDebugInfo)
-                tvAltitude.setText(String.format(Locale.ROOT, "%.0f", unitCalc.altitude(location.getAltitude())));
+            double gradient = -2;
+            if (showDebugInfo) {
+                if (prevLocation != null) {
+                    double deltaAlt = location.getAltitude() - prevLocation.getAltitude();
+                    float distance = distance(new GeoPoint(location.getLatitude(), location.getLongitude()), new GeoPoint(prevLocation.getLatitude(), prevLocation.getLongitude()));
+                    if (distance != 0)
+                        gradient = deltaAlt / distance;
+                }
+                tvAltitude.setText(String.format(Locale.ROOT, "%.0f %.1f", unitCalc.altitude(location.getAltitude()), gradient*100));
+                prevLocation = new Location(location);
+            }
 
             printoutDebugInfo(location);
+
+            if (debugList != null)
+                debugList.add(new DebugItem(location));
 
 //            if (followMode)
 //                map.getController().setCenter(new GeoPoint(location.getLatitude(), location.getLongitude()));
@@ -403,26 +442,19 @@ public class MainActivity extends AppCompatActivity {
                 .putDouble("mapPosX", map.getMapCenter().getLatitude())
                 .putDouble("mapPosY", map.getMapCenter().getLongitude())
                 .putDouble("mapPosZ", map.getZoomLevelDouble())
-                .putInt("mapSourceIndex", mapSourceIndex)
                 .apply();
     }
 
 
     @OnClick(R.id.btnChangeSource)
     void clickChangeSource() {
-        mapSourceIndex++;
-        if (mapSourceIndex >= mapSource.length)
-            mapSourceIndex = 0;
-        mapSetSource();
+        mapsCatalog.nextMap();
     }
 
-    private void mapSetSource() {
-        map.setTileSource(mapSource[mapSourceIndex]);
-
-        // setting min/max zooms is not implemented inside mapview. pros: user can zoom in further with "pixel effect", cons: user is not aware of zoom limits
-//        map.setMinZoomLevel((double) mapSource[mapSourceIndex].getMinimumZoomLevel());
-//        map.setMaxZoomLevel((double) mapSource[mapSourceIndex].getMaximumZoomLevel()); // also setting lower max zoom cause harsh zoom out w/o animation
-        btnChangeSource.setImageResource(MAP_ICONS[mapSourceIndex]);
+    @OnLongClick(R.id.btnChangeSource)
+    boolean selectSource() {
+        mapsCatalog.selectSource(this);
+        return true;
     }
 
     @Override
@@ -788,9 +820,66 @@ public class MainActivity extends AppCompatActivity {
 //                -85d, 145d // South Pacific
 //        ));
 
-        DEBUGlocationDialog();
+//        DEBUGlocationDialog();
+
+        if (debugList == null) {
+            Toast.makeText(this, "Starting the record", Toast.LENGTH_LONG).show();
+            debugList = new ArrayList<>();
+        } else {
+            Toast.makeText(this, "Stopping the record " + debugList.size(), Toast.LENGTH_LONG).show();
+            StringBuilder sb = new StringBuilder();
+
+            GeoPoint prev = null;
+            for(int i = 0; i < debugList.size(); i++) {
+                sb.append(i).append(";").append(debugList.get(i).logLine(prev)).append("\n");
+                prev = new GeoPoint(debugList.get(i).latitude, debugList.get(i).longitude);
+            }
+            sb.append("total records ").append(debugList.size());
+
+            ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(
+                    ClipData.newPlainText("Debug list", sb.toString()));
+
+            debugList.clear();
+            debugList = null;
+        }
 
         return true;
+    }
+
+    class DebugItem {
+        private final long time;
+        private final double latitude;
+        private final double longitude;
+        private final float accuracy;
+        private final double altitude;
+        private final float verticalAccuracy;
+        private final float speed;
+
+        public DebugItem(Location location) {
+            this.time = System.currentTimeMillis();
+            this.latitude = location.getLatitude();
+            this.longitude = location.getLongitude();
+            this.accuracy = location.getAccuracy();
+            this.altitude = location.getAltitude();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                this.verticalAccuracy = location.getVerticalAccuracyMeters();
+            else this.verticalAccuracy = -1;
+            this.speed = location.getSpeed();
+        }
+
+        public String logLine(GeoPoint previousPoint) {
+            return
+                    new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS", Locale.ROOT).format(new Date(time)) + ";" +
+                            time + ";" +
+                            latitude + ";" +
+                            longitude + ";" +
+                            accuracy + ";" +
+                            altitude + ";" +
+                            verticalAccuracy + ";" +
+                            speed + ";" +
+                            (previousPoint == null ? 0 : distance(new GeoPoint(latitude, longitude), previousPoint) )
+                    ;
+        }
     }
 
 
@@ -916,15 +1005,38 @@ public class MainActivity extends AppCompatActivity {
 
     void searchLocation(String locationName ) {
 
-        AsyncTask.execute(() -> {
+        new Thread(() -> {
             GeocoderNominatim coderNominatim = new GeocoderNominatim(getPackageName()); // com.applikationsprogramvara.osmviewer
 
             try {
-                List<Address> geoResults = coderNominatim.getFromLocationName(locationName, 1);
+                List<Address> geoResults = coderNominatim.getFromLocationName(locationName, 30);
 
                 if (geoResults.size() == 0) {
                     runOnUiThread(() -> Toast.makeText(this, "Location \"" + locationName + "\" is not found", Toast.LENGTH_LONG).show());
                 } else {
+
+                    if (geoResults.size() > 1) {
+                        MenuUtils.MenuBuilder menu = new MenuUtils.MenuBuilder(this)
+                                .setTitle("Search results (" + geoResults.size() + ")");
+
+                        Collections.sort(geoResults, (o1, o2) -> Float.compare(
+                                distance((GeoPoint) map.getMapCenter(), new GeoPoint(o1.getLatitude(), o1.getLongitude())),
+                                distance((GeoPoint) map.getMapCenter(), new GeoPoint(o2.getLatitude(), o2.getLongitude()))
+                        ));
+
+                        for (int i = 0; i < geoResults.size(); i++) {
+                            Address address = geoResults.get(i);
+                            Bundle extras = address.getExtras();
+                            String displayName = extras.getString("display_name");
+                            GeoPoint point = new GeoPoint(address.getLatitude(), address.getLongitude());
+
+                            menu.add("" + (i + 1) + ": " + extras.getString("osm_type") + " Distance " + distanceToStr(distance((GeoPoint) map.getMapCenter(), point), this) + "\n" + displayName, () -> {
+                                jump(point);
+                                Toast.makeText(this, "Navigating to \"" + displayName + "\"", Toast.LENGTH_LONG).show();
+                            });
+                        }
+                        runOnUiThread(menu::show);
+                    } else {
                     Address address = geoResults.get(0);
                     Bundle extras = address.getExtras();
                     BoundingBox bb1 = extras.getParcelable("boundingbox"); // east and west is always given or interpreted vice versa
@@ -937,6 +1049,7 @@ public class MainActivity extends AppCompatActivity {
 //                        map.zoomToBoundingBox(bb2, false);
                         Toast.makeText(this, "Navigating to \"" + locationName + "\"", Toast.LENGTH_LONG).show();
                     });
+                    }
 
                     // example of returned bounding box
                     // Bundle[{
@@ -979,7 +1092,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-        });
+        }).start();
 
     }
 
@@ -1100,6 +1213,163 @@ public class MainActivity extends AppCompatActivity {
 //        resetRequiredCenter();
 //        map.getController().setCenter(new GeoPoint(lat, lon));
         Toast.makeText(this, "Navigating to [" + lat + ", " + lon + "]", Toast.LENGTH_LONG).show();
+    }
+
+
+    @OnClick(R.id.btnOverlay)
+    void clickSwitchOverlay() {
+        mapsCatalog.setOverlay(overlay == null);
+    }
+
+    @OnLongClick(R.id.btnOverlay)
+    boolean switchOverlaySecondary() {
+        mapsCatalog.selectOverlay(this);
+        return true;
+    }
+
+    @OnClick(R.id.btnRuler)
+    void switchRulerSimple() {
+        switchRuler(false);
+    }
+
+    @OnLongClick(R.id.btnRuler)
+    boolean switchRulerContinuous() {
+        switchRuler(true);
+        return true;
+    }
+
+    void switchRuler(boolean continuous) {
+        if (userTouchSurface.getVisibility() == View.GONE) {
+            if (rulerLine == null)
+                rulerLine = new Polyline(map);
+            else
+                rulerLine.setPoints(new ArrayList<>());
+
+            rulerLine.getOutlinePaint().setColor(Color.RED);
+            map.getOverlays().add(rulerLine);
+
+            continuousRulerMode = continuous;
+            btnRuler.setImageResource(continuous ? R.drawable.ic_ruler_continuous : R.drawable.ic_ruler_on);
+            userTouchSurface.setVisibility(View.VISIBLE);
+            tvDistance.setText(R.string.rulerStart);
+            tvDistance.setVisibility(View.VISIBLE);
+        } else {
+            rulerLine.setPoints(new ArrayList<>());
+            map.getOverlays().remove(rulerLine);
+            rulerLine = null;
+            map.invalidate();
+            btnRuler.setImageResource(R.drawable.ic_ruler_off);
+            userTouchSurface.setVisibility(View.GONE);
+            tvDistance.setVisibility(View.GONE);
+        }
+    }
+
+    private void drawRuler(float x, float y, boolean add) {
+        if (rulerLine == null) return;
+
+        Projection projection = map.getProjection();
+
+        GeoPoint gp = (GeoPoint) projection.fromPixels((int) x, (int) y);
+
+        float dist = 0;
+        List<GeoPoint> points1 = rulerLine.getActualPoints();
+        if (points1.size() >= 2)
+            dist = distance(points1.get(points1.size() - 2), gp);
+
+        float screenDiagonal = distance(
+                new GeoPoint(map.getBoundingBox().getLatNorth(), map.getBoundingBox().getLonWest()),
+                new GeoPoint(map.getBoundingBox().getLatSouth(), map.getBoundingBox().getLonEast())
+        );
+
+        if (add || points1.size() == 1 || (continuousRulerMode && dist > screenDiagonal / 200)) {
+            rulerLine.addPoint(gp);
+        } else {
+            List<GeoPoint> points = new ArrayList<>(rulerLine.getActualPoints());
+            if (points.size() > 1) {
+                points.get(points.size() - 1).setCoords(gp.getLatitude(), gp.getLongitude());
+                rulerLine.setPoints(points);
+            }
+        }
+        map.postInvalidate();
+
+        tvDistance.setText(distanceToStr(rulerLine.getDistance(), this));
+
+//            tvDebugInfo.setText("x " + x + " y " + y + "\n" +
+//                    "" + gp.getLatitude() + " " + gp.getLongitude() + "\n" +
+//                    "(" + rulerLine.getActualPoints().size() + ") " + rulerLine.getDistance() + "\n" +
+//                    "" + dist + " " + screenDiagonal);
+    }
+
+
+    @OnClick(R.id.btnCollapseExpand)
+    void switchCollapsablePanel() {
+        expandCollapsePanel(collapsablePart.getVisibility() == View.VISIBLE);
+    }
+    
+    void expandCollapsePanel(boolean collapse) {
+        collapsablePart.setVisibility(collapse ? View.GONE : View.VISIBLE);
+        btnCollapseExpand.setImageResource(collapse ? R.drawable.ic_chevron_left : R.drawable.ic_chevron_right);
+        shiftScaleBar();
+        prefs.edit().putBoolean("AuxButtonsCollapsed", collapse).apply();
+    }
+
+    private void shiftScaleBar() {
+        mScaleBarOverlay.setScaleBarOffset(
+                (int) (getResources().getDisplayMetrics().density * (16 + 48)) + mainLayout.getPaddingRight(),
+                (int) (getResources().getDisplayMetrics().density * (16 + (collapsablePart.getVisibility() == View.VISIBLE ? 48 : 0))) + mainLayout.getPaddingBottom()
+        );
+        map.invalidate();
+    }
+
+    @OnClick(R.id.btnSearch)
+    void searchLocation() {
+        DEBUGlocationDialog();
+    }
+
+    private static String distanceToStr(double distance, Context context) {
+
+        switch (EnhancedSharedPreferences.getDefaultSharedPreferences(context).getString("UnitsOfMeasure", "metric")) {
+            default:
+            case "metric":
+                if (distance >= 10000)
+                    return "" + keepTwoDigits(distance) / 1000 + " " + context.getString(R.string.unit_km);
+                else if (distance >= 1000)
+                    return "" + (float) keepTwoDigits(distance) / 1000 + " " + context.getString(R.string.unit_km);
+                else return "" + keepTwoDigits(distance) + " " + context.getString(R.string.unit_meter);
+            case "imperial":
+                double MILE = 1609.344;
+                double YARD = 0.9144;
+                if (distance >= 10 * MILE)
+                    return "" + keepTwoDigits(distance / MILE) + " " + context.getString(R.string.unit_mile);
+                else if (distance >= MILE)
+                    return "" + (float) keepTwoDigits(10 * distance / MILE ) / 10 + " " + context.getString(R.string.unit_mile);
+                else return "" + keepTwoDigits(distance / YARD) + " " + context.getString(R.string.unit_yard);
+        }
+    }
+
+    private static int keepTwoDigits(double distance) {
+        int digits = 0;
+        while (distance >= 100) {
+            distance = distance / 10;
+            digits++;
+        }
+
+        int result = (int) (Math.floor(distance) * Math.pow(10, digits));
+
+        return result;
+    }
+
+
+    private static float distance(GeoPoint pa, GeoPoint pb) {
+        Location a = new Location("A");
+        a.setLatitude(pa.getLatitude());
+        a.setLongitude(pa.getLongitude());
+
+        Location b = new Location("B");
+        b.setLatitude(pb.getLatitude());
+        b.setLongitude(pb.getLongitude());
+
+        return a.distanceTo(b);
     }
 
 

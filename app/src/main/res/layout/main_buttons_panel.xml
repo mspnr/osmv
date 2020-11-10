@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainButtons"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+
+    android:gravity="end"
+    tools:showIn="@layout/activity_main">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnGPS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_gps_off"
+        android:background="@color/btnBack"
+        android:padding="@dimen/btnPadding"
+        android:gravity="center"
+        android:contentDescription="@string/btn_gps" />
+
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnJumpToLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_my_location"
+        android:background="@color/btnBack"
+        android:padding="@dimen/btnPadding"
+        android:gravity="center"
+        android:contentDescription="@string/btn_location"
+
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/zoomPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/zoomBtnWidth">
+
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnZoomIn"
+            android:layout_width="@dimen/zoomBtnWidth"
+            android:layout_height="@dimen/zoomBtnHeigth"
+            android:src="@drawable/ic_zoom_in"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_zoom_in" />
+
+        <TextView
+            android:id="@+id/tvZoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/btnBack"
+            android:text="10"
+            android:padding="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnZoomOut"
+            android:layout_width="@dimen/zoomBtnWidth"
+            android:layout_height="@dimen/zoomBtnHeigth"
+            android:src="@drawable/ic_zoom_out"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_zoom_out" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

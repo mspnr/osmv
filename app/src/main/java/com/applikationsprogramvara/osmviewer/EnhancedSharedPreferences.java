@@ -2,8 +2,7 @@ package com.applikationsprogramvara.osmviewer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
+import androidx.preference.PreferenceManager;
 
 import java.util.Map;
 import java.util.Set;
