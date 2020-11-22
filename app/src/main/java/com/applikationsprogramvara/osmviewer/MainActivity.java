@@ -1,11 +1,5 @@
 package com.applikationsprogramvara.osmviewer;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-
 import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
@@ -25,8 +19,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
-
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,6 +33,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.preference.PreferenceManager;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.location.GeocoderNominatim;
 import org.osmdroid.config.Configuration;
@@ -48,9 +47,6 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.tilesource.TileSourcePolicy;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -80,48 +76,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_SETTINGS = 151;
 
-    public static final OnlineTileSourceBase HTTP_MAPNIK = new XYTileSource("HttpMapnik",
-            0, 19, 256, ".png", new String[]{
-            "http://a.tile.openstreetmap.org/",
-            "http://b.tile.openstreetmap.org/",
-            "http://c.tile.openstreetmap.org/"}, "© OpenStreetMap contributors",
-            new TileSourcePolicy(2,
-                    TileSourcePolicy.FLAG_NO_BULK
-                            | TileSourcePolicy.FLAG_NO_PREVENTIVE
-                            | TileSourcePolicy.FLAG_USER_AGENT_MEANINGFUL
-                            | TileSourcePolicy.FLAG_USER_AGENT_NORMALIZED
-            ));
-
-    public static final OnlineTileSourceBase HTTP_OPENTOPOMAP = new XYTileSource("HttpOpenTopoMap",
-            0, 17, 256, ".png", new String[]{
-                    "http://a.tile.opentopomap.org/",
-                    "http://b.tile.opentopomap.org/",
-                    "http://c.tile.opentopomap.org/"},
-            "Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)");
-
-
-
-    public static final OnlineTileSourceBase[] MAP_SOURCES_STD = new OnlineTileSourceBase[] {
-            TileSourceFactory.MAPNIK,
-            TileSourceFactory.OpenTopo
-    };
-
-    public static final OnlineTileSourceBase[] MAP_SOURCES_HTTP = new OnlineTileSourceBase[] {
-            HTTP_MAPNIK,
-            HTTP_OPENTOPOMAP
-    };
-
-    public static final int[] MAP_ICONS = new int[] {
-            R.drawable.ic_map_usual,
-            R.drawable.ic_map_topo
-    };
 
     private static final int REQUEST_LOCATION_DISPLAY = 123;
     private static final int REQUEST_LOCATION_JUMP    = 124;
 
     public static final int ANIMATION_SPEED_FAST = 250;
     public static final int ANIMATION_SPEED_SLOW = 500;
-    int mapSourceIndex;
+    private MapsCatalog mapsCatalog;
 
     @BindView(R.id.map) MapView map;
     @BindView(R.id.tvDebugInfo) TextView tvDebugInfo;
@@ -182,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
         mScaleBarOverlay = new ScaleBarOverlay(map);
         mScaleBarOverlay.setAlignBottom(true);
         mScaleBarOverlay.setAlignRight(true);
+
+        mapsCatalog = new MapsCatalog(prefs, (source, image) -> {
+            map.setTileSource(source);
+            btnChangeSource.setImageResource(image);
+        });
 
         loadSettings();
 
@@ -267,9 +233,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSettings() {
-        mapSourceIndex = prefs.getInt("mapSourceIndex", 0);
-        mapSource = prefs.getBoolean("HttpSource", false) ? MAP_SOURCES_HTTP : MAP_SOURCES_STD;
-        mapSetSource();
+
+        mapsCatalog.load();
 
         switch (prefs.getString("UnitsOfMeasure", "metric")) {
             default:
@@ -403,26 +368,19 @@ public class MainActivity extends AppCompatActivity {
                 .putDouble("mapPosX", map.getMapCenter().getLatitude())
                 .putDouble("mapPosY", map.getMapCenter().getLongitude())
                 .putDouble("mapPosZ", map.getZoomLevelDouble())
-                .putInt("mapSourceIndex", mapSourceIndex)
                 .apply();
     }
 
 
     @OnClick(R.id.btnChangeSource)
     void clickChangeSource() {
-        mapSourceIndex++;
-        if (mapSourceIndex >= mapSource.length)
-            mapSourceIndex = 0;
-        mapSetSource();
+        mapsCatalog.nextMap();
     }
 
-    private void mapSetSource() {
-        map.setTileSource(mapSource[mapSourceIndex]);
-
-        // setting min/max zooms is not implemented inside mapview. pros: user can zoom in further with "pixel effect", cons: user is not aware of zoom limits
-//        map.setMinZoomLevel((double) mapSource[mapSourceIndex].getMinimumZoomLevel());
-//        map.setMaxZoomLevel((double) mapSource[mapSourceIndex].getMaximumZoomLevel()); // also setting lower max zoom cause harsh zoom out w/o animation
-        btnChangeSource.setImageResource(MAP_ICONS[mapSourceIndex]);
+    @OnLongClick(R.id.btnChangeSource)
+    boolean selectSource() {
+        mapsCatalog.selectSource(this);
+        return true;
     }
 
     @Override

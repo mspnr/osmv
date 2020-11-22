@@ -2,8 +2,9 @@
     <string name="app_name">OSM Viewer</string>
 
     <string name="stg_cat_general">General</string>
-    <string name="stg_http_download_title">Download maps via HTTP</string>
-    <string name="stg_http_download_summary">Use HTTP instead of standard HTTPS to access map data. Be careful! In this case traffic can be visible for intruders.</string>
+    <string name="stg_map_source0_title">General map source</string>
+    <string name="stg_map_source1_title">Auxiliary map source</string>
+    <string name="stg_map_source_hint_desc">Hint: Use long tap on the map icon to select an alternative map source directly from the main screen</string>
     <string name="stg_units">Units</string>
 
     <string name="stg_cat_experimental">Experimental</string>
@@ -37,5 +38,7 @@
     <string name="btn_ok">OK</string>
     <string name="title_settings">Settings</string>
     <string name="toast_location_service_disabled">Location service disabled</string>
+
+    <string name="dlg_select_map_source_title">Select source</string>
 
 </resources>

@@ -7,10 +7,16 @@
     <PreferenceCategory android:key="General"
         android:title="@string/stg_cat_general">
 
-        <CheckBoxPreference android:key="HttpSource"
-            android:title="@string/stg_http_download_title"
-            android:defaultValue="false"
-            android:summary="@string/stg_http_download_summary"
+        <Preference
+            android:summary="@string/stg_map_source_hint_desc"
+            />
+
+        <Preference android:key="MapSource0"
+            android:title="@string/stg_map_source0_title"
+            />
+
+        <Preference android:key="MapSource1"
+            android:title="@string/stg_map_source1_title"
             />
 
         <ListPreference android:key="UnitsOfMeasure"

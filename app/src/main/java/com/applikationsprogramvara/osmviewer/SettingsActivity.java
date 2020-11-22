@@ -3,7 +3,6 @@ package com.applikationsprogramvara.osmviewer;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -107,6 +106,10 @@ public class SettingsActivity extends AppCompatActivity {
 //                });
             }
 
+
+            setMapSource(0);
+            setMapSource(1);
+
             Preference marketLinkPreference = findPreference("MarketLink");
             marketLinkPreference.setOnPreferenceClickListener(preference -> {
                 Utils.openMarketLink(context);
@@ -134,6 +137,16 @@ public class SettingsActivity extends AppCompatActivity {
 
 
 
+        }
+
+        private void setMapSource(int index1) {
+            Preference map1 = findPreference("MapSource" + index1);
+            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), (source, image) -> map1.setSummary(source.name()));
+            mapsCatalog.load(index1);
+            map1.setOnPreferenceClickListener(preference -> {
+                mapsCatalog.selectSource(context, index1);
+                return true;
+            });
         }
     }
 
@@ -205,7 +218,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (correction) {
                         String newStrValue = floatPreference ? Float.toString((float) value) : Integer.toString(Math.round((float) value));
                         //preference.getEditor().putString(preference.getKey(), newStrValue).apply();
-                        prefs.edit().putString(preference.getKey(), newStrValue).apply();
+                        preference.getSharedPreferences().edit().putString(preference.getKey(), newStrValue).apply();
                         editTextPreference.setText(newStrValue);
                         preference.setSummary(newStrValue);
                         return false;
