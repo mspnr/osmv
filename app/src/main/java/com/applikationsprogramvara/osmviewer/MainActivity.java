@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -46,13 +47,15 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
+import org.osmdroid.tileprovider.MapTileProviderBase;
+import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.btnJumpToLocation) ImageButton btnJumpToLocation;
     @BindView(R.id.btnGPS) ImageButton btnGPS;
     @BindView(R.id.btnChangeSource) ImageButton btnChangeSource;
+    @BindView(R.id.btnOverlay) ImageButton btnOverlay;
     @BindView(R.id.mainLayout) View mainLayout;
 
     private EnhancedSharedPreferences prefs;
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     //private boolean followMode;
     private boolean showDebugInfo;
     private ScaleBarOverlay mScaleBarOverlay;
-    private OnlineTileSourceBase[] mapSource;
+    private TilesOverlay overlay;
     private UnitCalcInterface unitCalc;
     private GeoPoint requiredCenter;
     private boolean experimentalStickCenterOnZoom;
@@ -148,6 +152,26 @@ public class MainActivity extends AppCompatActivity {
         mapsCatalog = new MapsCatalog(prefs, (source, image) -> {
             map.setTileSource(source);
             btnChangeSource.setImageResource(image);
+        }, (source, show) -> {
+            if (overlay != null) {
+                map.getOverlays().remove(overlay);
+                overlay = null;
+            }
+
+            if (show) {
+                MapTileProviderBase provider = new MapTileProviderBasic(this);
+                provider.setTileSource(source);
+                overlay = new TilesOverlay(provider, this);
+                overlay.setLoadingBackgroundColor(Color.TRANSPARENT);
+                provider.getTileRequestCompleteHandlers().add(map.getTileRequestCompleteHandler());
+                map.getOverlays().add(overlay);
+
+                btnOverlay.setImageResource(R.drawable.ic_overlay_on);
+            } else {
+                btnOverlay.setImageResource(R.drawable.ic_overlay_off);
+            }
+
+            map.invalidate();
         });
 
         loadSettings();
@@ -266,6 +290,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         experimentalStickCenterOnZoom = prefs.getBoolean("ExperimentalStickCenterOnZoom", false);
+
+        boolean showOverlayButton = prefs.getBoolean("ShowOverlayButton", false);
+        btnOverlay.setVisibility(showOverlayButton ? View.VISIBLE : View.GONE);
+        if (!showOverlayButton)
+            mapsCatalog.setOverlay(false);
     }
 
     private void printoutDebugInfo(Location l1) {
@@ -1054,6 +1083,17 @@ public class MainActivity extends AppCompatActivity {
 //        resetRequiredCenter();
 //        map.getController().setCenter(new GeoPoint(lat, lon));
         Toast.makeText(this, "Navigating to [" + lat + ", " + lon + "]", Toast.LENGTH_LONG).show();
+    }
+
+    @OnClick(R.id.btnOverlay)
+    void clickSwitchOverlay() {
+        mapsCatalog.setOverlay(overlay == null);
+    }
+
+    @OnLongClick(R.id.btnOverlay)
+    boolean switchOverlaySecondary() {
+        mapsCatalog.selectOverlay(this);
+        return true;
     }
 
 

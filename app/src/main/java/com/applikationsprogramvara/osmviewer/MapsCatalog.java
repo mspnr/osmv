@@ -66,24 +66,56 @@ public class MapsCatalog {
             R.drawable.ic_map_topo
     };
 
+    public static final OnlineTileSourceBase WAY_MARKED_TRAILS_HIKING = new XYTileSource("WayMarkedTrails Hiking",
+            0, 18, 256, ".png",
+            new String[] { "https://tile.waymarkedtrails.org/hiking/" });
+
+    public static final OnlineTileSourceBase WAY_MARKED_TRAILS_HIKING_HTTP = new XYTileSource("WayMarkedTrails Hiking http",
+            0, 18, 256, ".png",
+            new String[] { "https://tile.waymarkedtrails.org/hiking/" });
+
+    public static final OnlineTileSourceBase WAY_MARKED_TRAILS_CYCLING = new XYTileSource("WayMarkedTrails Cycling",
+            0, 18, 256, ".png",
+            new String[] { "https://tile.waymarkedtrails.org/cycling/" });
+
+    public static final OnlineTileSourceBase WAY_MARKED_TRAILS_CYCLING_HTTP = new XYTileSource("WayMarkedTrails Cycling http",
+            0, 18, 256, ".png",
+            new String[] { "https://tile.waymarkedtrails.org/cycling/" });
+
+    public static final OnlineTileSourceBase[] OVERLAY_SOURCES = new OnlineTileSourceBase[] {
+            WAY_MARKED_TRAILS_HIKING,
+            WAY_MARKED_TRAILS_HIKING_HTTP,
+            WAY_MARKED_TRAILS_CYCLING,
+            WAY_MARKED_TRAILS_CYCLING_HTTP,
+    };
+
     private final SharedPreferences prefs;
     private final CallbackSetMapSource setMap;
+    private final CallbackSetOverlaySource setOverlay;
     private int mapIndex1;
     private int mapIndex2;
+    private int overlayIndex;
 
-    public MapsCatalog(SharedPreferences prefs, @Nullable CallbackSetMapSource setMap) {
+    public MapsCatalog(SharedPreferences prefs, @Nullable CallbackSetMapSource setMap, @Nullable CallbackSetOverlaySource setOverlay) {
         this.prefs = prefs;
         this.setMap = setMap;
+        this.setOverlay = setOverlay;
     }
 
     public void load() {
         mapIndex1 = prefs.getInt("mapSourceIndex", 0);
         load(mapIndex1);
+        loadOverlay();
     }
 
     public void load(int index1) {
         mapIndex2 = prefs.getInt("mapSourceIndex2_" + index1, 0);
         mapSetSource(index1);
+    }
+
+    public void loadOverlay() {
+        overlayIndex = prefs.getInt("overlaySourceIndex", 0);
+        setOverlay(prefs.getBoolean("OverlayDisplayed", false));
     }
 
     public void nextMap() {
@@ -129,15 +161,46 @@ public class MapsCatalog {
             mapIndex2 = 0;
 
         if (setMap != null)
-        setMap.set(
-                MAP_SOURCES[index1][mapIndex2],
-                MapsCatalog.MAP_ICONS[index1]
-        );
+            setMap.set(
+                    MAP_SOURCES[index1][mapIndex2],
+                    MapsCatalog.MAP_ICONS[index1]
+            );
 
     }
 
     public interface CallbackSetMapSource {
         void set(ITileSource source, int image);
     }
+
+    public void setOverlay(boolean show) {
+        if (overlayIndex >= OVERLAY_SOURCES.length)
+            overlayIndex = 0;
+
+        if (setOverlay != null)
+            setOverlay.set(OVERLAY_SOURCES[overlayIndex], show);
+
+        prefs.edit().putBoolean("OverlayDisplayed", show).apply();
+    }
+
+    public void selectOverlay(Context context) {
+        MenuUtils.MenuBuilder menu = new MenuUtils.MenuBuilder(context)
+                .setTitle(R.string.dlg_select_overlay_source_title);
+
+        for (int i = 0; i < OVERLAY_SOURCES.length; i++) {
+            int i2 = i;
+            menu.add(OVERLAY_SOURCES[i].toString(), () -> {
+                overlayIndex = i2;
+                prefs.edit().putInt("overlaySourceIndex", overlayIndex).apply();
+                setOverlay(true);
+            });
+        }
+
+        menu.show2(overlayIndex);
+    }
+
+    public interface CallbackSetOverlaySource {
+        void set(ITileSource source, boolean show);
+    }
+
 
 }

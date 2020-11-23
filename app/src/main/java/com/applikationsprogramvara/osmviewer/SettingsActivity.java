@@ -109,6 +109,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             setMapSource(0);
             setMapSource(1);
+            setOverlaySource();
 
             Preference marketLinkPreference = findPreference("MarketLink");
             marketLinkPreference.setOnPreferenceClickListener(preference -> {
@@ -141,13 +142,24 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void setMapSource(int index1) {
             Preference map1 = findPreference("MapSource" + index1);
-            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), (source, image) -> map1.setSummary(source.name()));
+            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), (source, image) -> map1.setSummary(source.name()), null);
             mapsCatalog.load(index1);
             map1.setOnPreferenceClickListener(preference -> {
                 mapsCatalog.selectSource(context, index1);
                 return true;
             });
         }
+
+        private void setOverlaySource() {
+            Preference map1 = findPreference("OverlaySource");
+            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), null, (source, show) -> map1.setSummary(source.name()));
+            mapsCatalog.loadOverlay();
+            map1.setOnPreferenceClickListener(preference -> {
+                mapsCatalog.selectOverlay(context);
+                return true;
+            });
+        }
+
     }
 
     private static void bindPreferenceSummaryToValue(Preference preference) {

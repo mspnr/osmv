@@ -8,31 +8,46 @@
     android:layout_alignParentBottom="true"
     tools:showIn="@layout/activity_main">
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btnSettings"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_settings"
-        android:background="@color/btnBack"
-        android:padding="@dimen/btnPadding"
-        android:contentDescription="@string/btn_settings"
+        android:orientation="vertical"
 
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        />
+        >
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btnChangeSource"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_map_usual"
-        android:background="@color/btnBack"
-        android:padding="@dimen/btnPadding"
-        android:contentDescription="@string/btn_change_source"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnChangeSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_map_usual"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_change_map_source"
+            />
 
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/btnSettings" />
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_overlay_off"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_change_overlay_source"
+            />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings"
+            android:background="@color/btnBack"
+            android:padding="@dimen/btnPadding"
+            android:contentDescription="@string/btn_settings"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>

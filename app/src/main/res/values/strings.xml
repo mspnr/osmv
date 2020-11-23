@@ -5,6 +5,8 @@
     <string name="stg_map_source0_title">General map source</string>
     <string name="stg_map_source1_title">Auxiliary map source</string>
     <string name="stg_map_source_hint_desc">Hint: Use long tap on the map icon to select an alternative map source directly from the main screen</string>
+    <string name="stg_overlay_source_title">Overlay source</string>
+    <string name="stg_show_overlay_btn_title">Show overlay button</string>
     <string name="stg_units">Units</string>
 
     <string name="stg_cat_experimental">Experimental</string>
@@ -19,7 +21,8 @@
     <string name="toast_error_value_low">Entered value is too low</string>
     <string name="toast_error_value_high">Entered value is too high</string>
 
-    <string name="btn_change_source">Change map source: OSM and OpenTopoMap</string>
+    <string name="btn_change_map_source">Change map source: General and topographic</string>
+    <string name="btn_change_overlay_source">Change overlay source</string>
     <string name="btn_gps">Display your position on the map</string>
     <string name="btn_location">Jump to your location. Long click: follow your location.</string>
     <string name="btn_zoom_in">Zoom in</string>
@@ -40,5 +43,6 @@
     <string name="toast_location_service_disabled">Location service disabled</string>
 
     <string name="dlg_select_map_source_title">Select source</string>
+    <string name="dlg_select_overlay_source_title">Select overlay</string>
 
 </resources>
