@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.btnJumpToLocation) ImageButton btnJumpToLocation;
     @BindView(R.id.btnGPS) ImageButton btnGPS;
     @BindView(R.id.btnChangeSource) ImageButton btnChangeSource;
+    @BindView(R.id.mainLayout) View mainLayout;
 
     private EnhancedSharedPreferences prefs;
     private MyLocationNewOverlay mLocationOverlay;
@@ -162,12 +163,7 @@ public class MainActivity extends AppCompatActivity {
         GeoPoint startPoint = new GeoPoint(prefs.getDouble("mapPosX", 48.8583), prefs.getDouble("mapPosY", 2.2944));
         mapController.setCenter(startPoint);
 
-        findViewById(R.id.mainLayout).addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            mScaleBarOverlay.setScaleBarOffset(
-                    (int) (getResources().getDisplayMetrics().density * (16 + 48 + (BuildConfig.DEBUG ? 48 : 0))) + v.getPaddingRight(),
-                    (int) (getResources().getDisplayMetrics().density * 16) + v.getPaddingBottom()
-            );
-        });
+        mainLayout.addOnLayoutChangeListener((v, l, t, r, b, l2, t2, r2, b2) -> shiftScaleBar());
         map.getOverlays().add(mScaleBarOverlay);
 
         map.getOverlays().add(0, new Overlay() {
@@ -1060,5 +1056,13 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Navigating to [" + lat + ", " + lon + "]", Toast.LENGTH_LONG).show();
     }
 
+
+    private void shiftScaleBar() {
+        mScaleBarOverlay.setScaleBarOffset(
+                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getWidth() - findViewById(R.id.btnSettings).getX() - mainLayout.getPaddingLeft()),
+                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getPaddingBottom())
+        );
+        map.invalidate();
+    }
 
 }
