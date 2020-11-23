@@ -8,6 +8,16 @@
     tools:showIn="@layout/activity_main">
 
     <TextView
+        android:id="@+id/tvDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/btnBack"
+        android:text="10"
+        android:textSize="30sp"
+
+        android:padding="18dp" />
+
+    <TextView
         android:id="@+id/tvSpeed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

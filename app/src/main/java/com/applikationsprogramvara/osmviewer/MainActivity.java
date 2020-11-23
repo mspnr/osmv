@@ -34,6 +34,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -53,7 +54,9 @@ import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -91,10 +94,13 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tvDebugInfo) TextView tvDebugInfo;
     @BindView(R.id.tvZoom) TextView tvZoom;
     @BindView(R.id.tvSpeed) TextView tvSpeed;
+    @BindView(R.id.tvDistance) TextView tvDistance;
     @BindView(R.id.tvAltitude) TextView tvAltitude;
     @BindView(R.id.btnJumpToLocation) ImageButton btnJumpToLocation;
     @BindView(R.id.btnGPS) ImageButton btnGPS;
     @BindView(R.id.btnChangeSource) ImageButton btnChangeSource;
+    @BindView(R.id.userTouchSurface) UserTouchSurface userTouchSurface;
+    @BindView(R.id.btnRuler) ImageButton btnRuler;
     @BindView(R.id.btnOverlay) ImageButton btnOverlay;
     @BindView(R.id.mainLayout) View mainLayout;
 
@@ -108,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
     private GeoPoint requiredCenter;
     private boolean experimentalStickCenterOnZoom;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.ROOT); // yy-MM-dd HH:mm:ss
+    private Polyline rulerLine;
+    private boolean continuousRulerMode;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -226,6 +234,32 @@ public class MainActivity extends AppCompatActivity {
         tvZoom.setText("");
         tvSpeed.setText("");
 
+        userTouchSurface.setCallback(new TwoFingerDrag(getBaseContext(), new TwoFingerDrag.Listener() {
+            @Override
+            public void onOneFinger(@Nullable MotionEvent event) {
+
+                if (event != null)
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        drawRuler(event.getX(), event.getY(), true);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                    case MotionEvent.ACTION_UP:
+                        drawRuler(event.getX(), event.getY(), false);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onTwoFingers(MotionEvent event) {
+                map.dispatchTouchEvent(event);
+            }
+        }));
+        //map.dispatchTouchEvent()
+        tvDistance.setVisibility(View.GONE);
+
+        collapseAuxPanel(prefs.getBoolean("AuxButtonsCollapsed", true));
 
         setDebugInfo(prefs.getBoolean("ShowDebugInfo", false));
 
@@ -844,6 +878,12 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_SETTINGS);
     }
 
+    @OnLongClick(R.id.btnSettings)
+    boolean showAuxButtons() {
+        collapseAuxPanel(btnRuler.getVisibility() == View.VISIBLE);
+        return true;
+    }
+
     @OnClick(R.id.btnDebug)
     void showDebugInfo() {
         setDebugInfo(!showDebugInfo);
@@ -1096,10 +1136,89 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @OnClick(R.id.btnRuler)
+    void switchRulerSimple() {
+        switchRuler(false);
+    }
+
+    @OnLongClick(R.id.btnRuler)
+    boolean switchRulerContinuous() {
+        switchRuler(true);
+        return true;
+    }
+
+    void switchRuler(boolean continuous) {
+        if (userTouchSurface.getVisibility() == View.GONE) {
+            if (rulerLine == null)
+                rulerLine = new Polyline(map);
+            else
+                rulerLine.setPoints(new ArrayList<>());
+
+            rulerLine.getOutlinePaint().setColor(Color.RED);
+            map.getOverlays().add(rulerLine);
+
+            continuousRulerMode = continuous;
+            btnRuler.setImageResource(continuous ? R.drawable.ic_ruler_continuous : R.drawable.ic_ruler_on);
+            userTouchSurface.setVisibility(View.VISIBLE);
+            tvDistance.setText(R.string.rulerStart);
+            tvDistance.setVisibility(View.VISIBLE);
+        } else {
+            rulerLine.setPoints(new ArrayList<>());
+            map.getOverlays().remove(rulerLine);
+            rulerLine = null;
+            map.invalidate();
+            btnRuler.setImageResource(R.drawable.ic_ruler_off);
+            userTouchSurface.setVisibility(View.GONE);
+            tvDistance.setVisibility(View.GONE);
+        }
+    }
+
+    private void drawRuler(float x, float y, boolean add) {
+        if (rulerLine == null) return;
+
+        Projection projection = map.getProjection();
+
+        GeoPoint gp = (GeoPoint) projection.fromPixels((int) x, (int) y);
+
+        float dist = 0;
+        List<GeoPoint> points1 = rulerLine.getActualPoints();
+        if (points1.size() >= 2)
+            dist = Utils.distance(points1.get(points1.size() - 2), gp);
+
+        float screenDiagonal = Utils.distance(
+                new GeoPoint(map.getBoundingBox().getLatNorth(), map.getBoundingBox().getLonWest()),
+                new GeoPoint(map.getBoundingBox().getLatSouth(), map.getBoundingBox().getLonEast())
+        );
+
+        if (add || points1.size() == 1 || (continuousRulerMode && dist > screenDiagonal / 200)) {
+            rulerLine.addPoint(gp);
+        } else {
+            List<GeoPoint> points = new ArrayList<>(rulerLine.getActualPoints());
+            if (points.size() > 1) {
+                points.get(points.size() - 1).setCoords(gp.getLatitude(), gp.getLongitude());
+                rulerLine.setPoints(points);
+            }
+        }
+        map.postInvalidate();
+
+        tvDistance.setText(Utils.distanceToStr(rulerLine.getDistance(), this));
+
+//            tvDebugInfo.setText("x " + x + " y " + y + "\n" +
+//                    "" + gp.getLatitude() + " " + gp.getLongitude() + "\n" +
+//                    "(" + rulerLine.getActualPoints().size() + ") " + rulerLine.getDistance() + "\n" +
+//                    "" + dist + " " + screenDiagonal);
+    }
+
+
+    void collapseAuxPanel(boolean collapse) {
+        btnRuler.setVisibility(collapse ? View.GONE : View.VISIBLE);
+        shiftScaleBar();
+        prefs.edit().putBoolean("AuxButtonsCollapsed", collapse).apply();
+    }
 
     private void shiftScaleBar() {
         mScaleBarOverlay.setScaleBarOffset(
-                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getWidth() - findViewById(R.id.btnSettings).getX() - mainLayout.getPaddingLeft()),
+                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getWidth() - findViewById(R.id.auxPanel).getX()),
                 (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getPaddingBottom())
         );
         map.invalidate();

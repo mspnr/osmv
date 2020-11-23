@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-
-    android:id="@+id/auxPanel"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_marginRight="96dp"
-    android:layout_marginEnd="96dp"
-
-    android:layout_alignParentRight="true"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentBottom="true"
-
-    tools:showIn="@layout/activity_main">
-
-    <include layout="@layout/collapsable_panel" />
+    tools:showIn="@layout/aux_buttons_panel">
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btnOverlay"
+        android:id="@+id/btnRuler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_overlay_off"
+        android:src="@drawable/ic_ruler_off"
         android:background="@color/btnBack"
         android:padding="@dimen/btnPadding"
-        android:contentDescription="@string/btn_change_overlay_source"
-        />
+        android:gravity="center"
+        android:contentDescription="@string/btn_ruler" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btnChangeSource"
+        android:id="@+id/btnSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_map_usual"
+        android:src="@drawable/ic_settings"
         android:background="@color/btnBack"
         android:padding="@dimen/btnPadding"
-        android:contentDescription="@string/btn_change_map_source"
-         />
+        android:contentDescription="@string/btn_settings" />
 
 </LinearLayout>

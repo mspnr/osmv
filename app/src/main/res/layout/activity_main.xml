@@ -13,6 +13,13 @@
         android:fitsSystemWindows="false"
         />
 
+    <com.applikationsprogramvara.osmviewer.UserTouchSurface
+        android:id="@+id/userTouchSurface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+
     <RelativeLayout
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"

@@ -20,6 +20,7 @@
 
         <CheckBoxPreference android:key="ShowOverlayButton"
             android:title="@string/stg_show_overlay_btn_title"
+            android:summary="@string/stg_show_overlay_btn_desc"
             app:defaultValue="false"
             />
         <Preference android:key="OverlaySource"
