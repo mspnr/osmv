@@ -24,7 +24,8 @@ width="240"/></a>
  
 ## Requested functions, ideas & plans
 
- * Add other maps - ok
+ * Add other maps - probably yes
+ * Offline functions - probably yes
  * Search - probably yes
  * Turn-by-turn navigation - definitely not
  * Calculate gradient while moving
