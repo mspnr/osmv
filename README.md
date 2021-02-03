@@ -19,16 +19,13 @@ width="240"/></a>
  * Dedicated buttons for zoom in/out to show the map sharp
  * Show user position
  * Tracking user position (long click on show position)
-  
-## Hidden functions
-
  * Open a location using the app: click on a link with coordinated or address
- * Switch between matric and imperial units in settings
+ * Switch between metric and imperial units in settings
  
-## Requested functions, ideas and plans
+## Requested functions, ideas & plans
 
- * Add other maps - ok
- * Offline - probably yes
+ * Add other maps - probably yes
+ * Offline functions - probably yes
  * Search - probably yes
  * Turn-by-turn navigation - definitely not
  * Calculate gradient while moving
@@ -48,4 +45,3 @@ The app was started as an experiment, so all the main functions are packed insid
 
 The app can be extended with an add-on in the developer version. It is not included to the standard distribution, though it is a field for experiments. 
 MapView is be transferred to the addon, so it can draw waypoints and routes. Placeholder is also transferred to the addon, so additional visual elements, like buttons, can be added.
-
