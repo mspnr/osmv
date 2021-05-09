@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
     private TilesOverlay overlay;
     private UnitCalcInterface unitCalc;
     private GeoPoint requiredCenter;
-    private boolean experimentalStickCenterOnZoom;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.ROOT); // yy-MM-dd HH:mm:ss
     private Polyline rulerLine;
     private boolean continuousRulerMode;
@@ -326,8 +325,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-
-        experimentalStickCenterOnZoom = prefs.getBoolean("ExperimentalStickCenterOnZoom", false);
 
         boolean showOverlayButton = prefs.getBoolean("ShowOverlayButton", false);
         btnOverlay.setVisibility(showOverlayButton ? View.VISIBLE : View.GONE);
@@ -751,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
         zoomAnimation.addUpdateListener(updatedAnimation -> {
             float fraction = updatedAnimation.getAnimatedFraction();
             map.getController().setZoom(startZoom + (targetZoom - startZoom) * fraction);
-            if (experimentalStickCenterOnZoom && requiredCenter != null)
+            if (requiredCenter != null)
                 map.getController().setCenter(requiredCenter);
         });
         zoomAnimation.start();

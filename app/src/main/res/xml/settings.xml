@@ -36,16 +36,12 @@
 
     </PreferenceCategory>
 
+    <!--
     <PreferenceCategory android:key="Experimental"
         android:title="@string/stg_cat_experimental">
 
-        <CheckBoxPreference android:key="ExperimentalStickCenterOnZoom"
-            android:title="@string/stg_experimental_stick_center_on_zoom_title"
-            android:defaultValue="false"
-            android:summary="@string/stg_experimental_stick_center_on_zoom_summary"
-            />
-
     </PreferenceCategory>
+    -->
 
     <PreferenceCategory android:title="@string/stg_cat_about" >
         <Preference

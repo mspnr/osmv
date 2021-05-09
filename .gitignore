@@ -49,3 +49,6 @@ build/
 /service-key.json
 
 osmviewer_addon/
+
+app/src/test/
+app/src/androidTest/

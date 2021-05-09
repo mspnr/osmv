@@ -11,8 +11,6 @@
     <string name="stg_units">Units</string>
 
     <string name="stg_cat_experimental">Experimental</string>
-    <string name="stg_experimental_stick_center_on_zoom_title">Stick map center on zoom</string>
-    <string name="stg_experimental_stick_center_on_zoom_summary">OSMDroid has an issue: on click buttons zoom out and zoom in, location under the center of the map has the tendency to be drifted. The current setting is intended to fix that. Any number of clicks to zoom in or out should keep map center positioned on the same coordinate.</string>
 
     <string name="stg_cat_about">About</string>
     <string name="stg_marketlink">Open app in Google Play</string>
