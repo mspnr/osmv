@@ -1,5 +1,7 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.github.triplet.play'
+plugins {
+    id 'com.android.application'
+    id 'com.github.triplet.play' version '3.2.0'
+}
 
 android {
     compileSdkVersion 30
@@ -72,7 +74,7 @@ dependencies {
 play {
     track = 'beta' // alpha / beta / production
     releaseName = android.defaultConfig.versionName
-    releaseStatus = "draft"
+    releaseStatus = com.github.triplet.gradle.androidpublisher.ReleaseStatus.DRAFT
     defaultToAppBundles = true
     serviceAccountCredentials = file("../service-key.json")
 }
