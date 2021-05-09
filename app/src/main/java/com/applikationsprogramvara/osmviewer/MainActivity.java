@@ -116,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.ROOT); // yy-MM-dd HH:mm:ss
     private Polyline rulerLine;
     private boolean continuousRulerMode;
+    private ValueAnimator zoomAnimation;
+    private double targetZoom;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -266,6 +268,8 @@ public class MainActivity extends AppCompatActivity {
         if (!BuildConfig.DEBUG)
             findViewById(R.id.btnDebug).setVisibility(View.GONE);
 
+        zoomAnimation = ValueAnimator.ofFloat(0f, 1f);
+        zoomAnimation.setDuration(ANIMATION_SPEED_FAST);
 
 
         try { // dynamic loading of addon - available in debug only
@@ -729,33 +733,28 @@ public class MainActivity extends AppCompatActivity {
         if (requiredCenter == null)
             setRequiredCenter(new GeoPoint(map.getMapCenter()));  // fix map center if it is not yet fixed
 
-//        Log.d("MyApp3", "animation start " +  map.getMapCenter().getLatitude() + "; " + map.getMapCenter().getLongitude() + " / (" + requestedDiff + ") " + map.getZoomLevelDouble());
         double startZoom = map.getZoomLevelDouble();
-        double targetZoom;
-        if (map.getZoomLevelDouble() != Math.round(map.getZoomLevelDouble())) {
-            if (requestedDiff > 0)
-                targetZoom = Math.ceil(map.getZoomLevelDouble());
-            else
-                targetZoom = Math.floor(map.getZoomLevelDouble());
-        } else targetZoom = Math.round(map.getZoomLevelDouble() + requestedDiff);
+        if (zoomAnimation.isRunning()) { // user clicked zoom button once again before the previous animation was finished
+            targetZoom += requestedDiff;
+            zoomAnimation.cancel();
+        } else { // usual case
+            if (startZoom == Math.round(startZoom)) { // user is already on even level
+                targetZoom = Math.round(startZoom + requestedDiff); // zoom to an another even level
+            } else {
+                targetZoom = requestedDiff > 0 ? // zoom to the closest even level
+                        Math.ceil(startZoom) :
+                        Math.floor(startZoom);
+            }
+        }
 
-//        map.getController().zoomTo(targetZoom, ANIMATION_SPEED_FAST);
-
-
-        ValueAnimator animation1 = ValueAnimator.ofFloat(0f, 1f);
-        animation1.setDuration(ANIMATION_SPEED_FAST);
-        animation1.addUpdateListener(updatedAnimation -> {
+        zoomAnimation.removeAllUpdateListeners();
+        zoomAnimation.addUpdateListener(updatedAnimation -> {
             float fraction = updatedAnimation.getAnimatedFraction();
             map.getController().setZoom(startZoom + (targetZoom - startZoom) * fraction);
             if (experimentalStickCenterOnZoom && requiredCenter != null)
                 map.getController().setCenter(requiredCenter);
-
-//            if (fraction == 1)
-//                Log.d("MyApp3", "animation end    " + map.getMapCenter().getLatitude() + "; " + map.getMapCenter().getLongitude() + " / (" + requestedDiff + ") " + map.getZoomLevelDouble());
         });
-        animation1.start();
-
-        //map.getController().setZoom(targetZoom);
+        zoomAnimation.start();
     }
 
     @OnLongClick(R.id.btnDebug)
