@@ -10,8 +10,8 @@ android {
         applicationId "com.applikationsprogramvara.osmviewer"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 9
-        versionName "1.5 20-11-23"
+        versionCode 10
+        versionName "1.5.1 21-05-09"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -57,7 +57,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'org.osmdroid:osmdroid-android:6.1.6'
+    implementation 'org.osmdroid:osmdroid-android:6.1.10'
     implementation 'com.github.MKergall:osmbonuspack:6.6.0'
 
     implementation 'com.jakewharton:butterknife:10.2.3'

@@ -1,5 +1,2 @@
-- long click to select map source
-- adding a new source - HikeBikeMap
-- two new hidden features: trails overlay and ruler
-- trails overlay can be turned on in settings
-- ruler is displayed on long tap to settings
+- updating libraries versions
+- small fixes: zoom animation and making "keep center on zoom" permanent
