@@ -120,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TopExceptionHandler.retrieveLastErrorReport(this);
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
 
         //handle permissions first, before map is created. not depicted here
 
