@@ -163,13 +163,14 @@ public class MapsCatalog {
         if (setMap != null)
             setMap.set(
                     MAP_SOURCES[index1][mapIndex2],
-                    MapsCatalog.MAP_ICONS[index1]
+                    MapsCatalog.MAP_ICONS[index1],
+                    index1
             );
 
     }
 
     public interface CallbackSetMapSource {
-        void set(ITileSource source, int image);
+        void set(ITileSource source, int image, int index);
     }
 
     public void setOverlay(boolean show) {

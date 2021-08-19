@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -163,9 +164,10 @@ public class MainActivity extends AppCompatActivity {
         mScaleBarOverlay.setAlignBottom(true);
         mScaleBarOverlay.setAlignRight(true);
 
-        mapsCatalog = new MapsCatalog(prefs, (source, image) -> {
+        mapsCatalog = new MapsCatalog(prefs, (source, image, index) -> {
             map.setTileSource(source);
             btnChangeSource.setImageResource(image);
+            mScaleBarOverlay.setBackgroundPaint(index == 1 ? new Paint() {{ setColor(0xCCFFFFFF); }} : null);
         }, (source, show) -> {
             if (overlay != null) {
                 map.getOverlays().remove(overlay);
