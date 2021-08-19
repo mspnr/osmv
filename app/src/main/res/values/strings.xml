@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">OSM Viewer</string>
 
+    <string name="stg_cat_hints">Hints</string>
+    <string name="stg_map_source_hint_title">Hint: Long tap</string>
+    <string name="stg_map_source_hint_desc">Use long tap on the map icon to select an alternative map source directly from the main screen</string>
+    <string name="stg_hint2_title">Hint: Map caching</string>
+    <string name="stg_hint2_desc">The app is using caching mechanism of OSMDroid library. Once a piece of map is loaded it is saved in cache. Next time the same piece of map can be displayed without network connectivity. There is no function for downloading an area in the app.</string>
     <string name="stg_cat_general">General</string>
     <string name="stg_map_source0_title">General map source</string>
     <string name="stg_map_source1_title">Auxiliary map source</string>
-    <string name="stg_map_source_hint_desc">Hint: Use long tap on the map icon to select an alternative map source directly from the main screen</string>
     <string name="stg_overlay_source_title">Overlay source</string>
     <string name="stg_show_overlay_btn_title">Show overlay button</string>
     <string name="stg_show_overlay_btn_desc">Allows to switch on displaying hiking or cycling trails over the map</string>

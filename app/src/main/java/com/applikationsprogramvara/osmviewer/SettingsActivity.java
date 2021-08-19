@@ -1,9 +1,11 @@
 package com.applikationsprogramvara.osmviewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -136,13 +138,30 @@ public class SettingsActivity extends AppCompatActivity {
                     "- " + settingsActivity.getString(R.string.stg_version_lib) + ": " + libVersion
             );
 
+            findPreference("Hint1LongTap").setOnPreferenceClickListener(preference -> {
+                Toast.makeText(getContext(), "No additional information here", Toast.LENGTH_LONG).show();
+                return false;
+            });
 
+            findPreference("Hint2Caching").setOnPreferenceClickListener(preference -> {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Question")
+                        .setMessage("You can get some additional information on OSMDroid support page. Would you like to open the web-page in your browser?")
+                        .setPositiveButton("Open", (dialog, which) -> {
+                            String address = "https://osmdroid.github.io/osmdroid/Tile-Caching.html";
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
+                            getContext().startActivity(browserIntent);
+                        })
+                        .setNegativeButton("Back", null)
+                        .show();
+                return false;
+            });
 
         }
 
         private void setMapSource(int index1) {
             Preference map1 = findPreference("MapSource" + index1);
-            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), (source, image) -> map1.setSummary(source.name()), null);
+            MapsCatalog mapsCatalog = new MapsCatalog(map1.getSharedPreferences(), (source, image, index) -> map1.setSummary(source.name()), null);
             mapsCatalog.load(index1);
             map1.setOnPreferenceClickListener(preference -> {
                 mapsCatalog.selectSource(context, index1);

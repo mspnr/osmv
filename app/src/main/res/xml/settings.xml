@@ -4,11 +4,21 @@
     android:key="mainScreen">
 
     <PreferenceCategory android:key="General"
-        android:title="@string/stg_cat_general">
+        android:title="@string/stg_cat_hints">
 
-        <Preference
+        <Preference android:key="Hint1LongTap"
+            android:title="@string/stg_map_source_hint_title"
             android:summary="@string/stg_map_source_hint_desc"
             />
+
+        <Preference android:key="Hint2Caching"
+            android:title="@string/stg_hint2_title"
+            android:summary="@string/stg_hint2_desc"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="General"
+        android:title="@string/stg_cat_general">
 
         <Preference android:key="MapSource0"
             android:title="@string/stg_map_source0_title"
