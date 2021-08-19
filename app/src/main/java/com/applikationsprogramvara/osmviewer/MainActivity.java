@@ -55,7 +55,9 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.TilesOverlay;
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean continuousRulerMode;
     private ValueAnimator zoomAnimation;
     private double targetZoom;
+    private ItemizedIconOverlay<OverlayItem> rulerPoints;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,11 +247,9 @@ public class MainActivity extends AppCompatActivity {
                 if (event != null)
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        drawRuler(event.getX(), event.getY(), true);
-                        break;
                     case MotionEvent.ACTION_MOVE:
                     case MotionEvent.ACTION_UP:
-                        drawRuler(event.getX(), event.getY(), false);
+                        drawRuler(event.getX(), event.getY(), event.getAction());
                         break;
                 }
 
@@ -1146,14 +1147,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void switchRuler(boolean continuous) {
-        if (userTouchSurface.getVisibility() == View.GONE) {
-            if (rulerLine == null)
-                rulerLine = new Polyline(map);
-            else
-                rulerLine.setPoints(new ArrayList<>());
-
+        if (!isRulerActivated()) {
+            rulerLine = new Polyline(map);
             rulerLine.getOutlinePaint().setColor(Color.RED);
             map.getOverlays().add(rulerLine);
+
+            rulerPoints = new ItemizedIconOverlay<>(new ArrayList<>(), ContextCompat.getDrawable(this, R.drawable.ic_circle), null, this);
+            map.getOverlays().add(rulerPoints);
 
             continuousRulerMode = continuous;
             btnRuler.setImageResource(continuous ? R.drawable.ic_ruler_continuous : R.drawable.ic_ruler_on);
@@ -1163,6 +1163,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             rulerLine.setPoints(new ArrayList<>());
             map.getOverlays().remove(rulerLine);
+            map.getOverlays().remove(rulerPoints);
             rulerLine = null;
             map.invalidate();
             btnRuler.setImageResource(R.drawable.ic_ruler_off);
@@ -1171,7 +1172,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void drawRuler(float x, float y, boolean add) {
+    private boolean isRulerActivated() {
+        return userTouchSurface.getVisibility() != View.GONE;
+    }
+
+    private void drawRuler(float x, float y, int action) {
         if (rulerLine == null) return;
 
         Projection projection = map.getProjection();
@@ -1188,7 +1193,15 @@ public class MainActivity extends AppCompatActivity {
                 new GeoPoint(map.getBoundingBox().getLatSouth(), map.getBoundingBox().getLonEast())
         );
 
-        if (add || points1.size() == 1 || (continuousRulerMode && dist > screenDiagonal / 200)) {
+        if (    (action == MotionEvent.ACTION_DOWN) ||
+                (action == MotionEvent.ACTION_MOVE && points1.size() == 1 && !continuousRulerMode) ||
+                (action == MotionEvent.ACTION_UP && continuousRulerMode)) {
+            OverlayItem item = new OverlayItem("", "", gp);
+            item.setMarkerHotspot(OverlayItem.HotspotPlace.CENTER);
+            rulerPoints.addItem(item);
+        }
+
+        if (action == MotionEvent.ACTION_DOWN || points1.size() == 1 || (continuousRulerMode && dist > screenDiagonal / 200)) {
             rulerLine.addPoint(gp);
         } else {
             List<GeoPoint> points = new ArrayList<>(rulerLine.getActualPoints());
@@ -1222,4 +1235,10 @@ public class MainActivity extends AppCompatActivity {
         map.invalidate();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isRulerActivated())
+            switchRuler(false);
+        else super.onBackPressed();
+    }
 }
