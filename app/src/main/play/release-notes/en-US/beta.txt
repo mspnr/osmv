@@ -1,2 +1,4 @@
-- updating libraries versions
-- small fixes: zoom animation and making "keep center on zoom" permanent
+- adding joints to measuring polyline
+- back button exits measuring mode
+- making background of scale bar overlay white in topo-mode to make it more visible
+- adding hints to settings

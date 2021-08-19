@@ -10,8 +10,8 @@ android {
         applicationId "com.applikationsprogramvara.osmviewer"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 10
-        versionName "1.5.1 21-05-09"
+        versionCode 11
+        versionName "1.6 21-08-19"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -66,7 +66,8 @@ dependencies {
     }
 }
 
-
+// put keystore.properties and service-key.json to the project root folder
+// use gradle icon to call gradle start tool and use task publishBundle
 play {
     track = 'beta' // alpha / beta / production
     releaseName = android.defaultConfig.versionName
