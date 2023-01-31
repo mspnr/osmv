@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.btnRuler) ImageButton btnRuler;
     @BindView(R.id.btnOverlay) ImageButton btnOverlay;
     @BindView(R.id.mainLayout) View mainLayout;
+    @BindView(R.id.outOfScreenPointer) OutOfScreenPointer outOfScreenPointer;
 
     private EnhancedSharedPreferences prefs;
     private MyLocationNewOverlay mLocationOverlay;
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("MyApp3", "onScroll " + event.getX() + ", " + event.getY() );
                 //changeFollowMode(false);
                 printoutDebugInfo(null);
+                updateOutOfScreenPosition();
                 return false;
             }
 
@@ -231,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
                 //changeFollowMode(false);
                 //Log.d("MyApp3", "onZoom " + event.getZoomLevel());// + " " + event.getSource());
                 printoutDebugInfo(null);
+                updateOutOfScreenPosition();
                 return false;
             }
         });
@@ -292,6 +295,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction()))
             parseGeoUri(intent.getData());
+
+        outOfScreenPointer.setClickToJump(view -> jumpToLocation());
     }
 
     private void loadSettings() {
@@ -418,6 +423,8 @@ public class MainActivity extends AppCompatActivity {
 //                map.getController().setCenter(new GeoPoint(location.getLatitude(), location.getLongitude()));
 
             mLocationOverlay.onLocationChanged(location, source); // populate the current location to the location overlay, so the arrow / person icon can be placed correctly
+
+            updateOutOfScreenPosition();
         });
     }
 
@@ -534,6 +541,7 @@ public class MainActivity extends AppCompatActivity {
             tvSpeed.setText("");
             prefs.edit().putBoolean("GPSisOn", false).apply();
         }
+        updateOutOfScreenPosition();
     }
 
     private double getBearing(Location location) {
@@ -1244,4 +1252,9 @@ public class MainActivity extends AppCompatActivity {
             switchRuler(false);
         else super.onBackPressed();
     }
+
+    private void updateOutOfScreenPosition() {
+        outOfScreenPointer.updatePosition(map, mLocationOverlay);
+    }
+
 }

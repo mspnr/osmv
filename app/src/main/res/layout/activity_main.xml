@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:fitsSystemWindows="false">
 
@@ -18,6 +19,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/tvOutOfScreenDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:background="@drawable/rounded_corner"
+        android:padding="3dp"
+        />
+
+    <com.applikationsprogramvara.osmviewer.OutOfScreenPointer
+        android:id="@+id/outOfScreenPointer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:textViewDistance="@id/tvOutOfScreenDistance"
         />
 
     <RelativeLayout
