@@ -55,6 +55,12 @@
             app:defaultValue="false"
             />
 
+        <CheckBoxPreference android:key="KeepScreenOn"
+            android:title="Keep screen on"
+            android:summary="Requesting Android do not use standard screen timeout. Can be useful for long trips, where scenario does not imply permanent screen interaction, e.g. during bike rides."
+            app:defaultValue="false"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/stg_cat_about" >

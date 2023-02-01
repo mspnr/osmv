@@ -343,6 +343,12 @@ public class MainActivity extends AppCompatActivity {
             mapsCatalog.setOverlay(false);
 
         outOfScreenPointer.turnOnOff(prefs.getBoolean("ExperimentalOutOfCenterPointer", false));
+
+        if (prefs.getBoolean("KeepScreenOn", false))
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     private void printoutDebugInfo(Location l1) {
