@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -426,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
 
             mLocationOverlay.onLocationChanged(location, source); // populate the current location to the location overlay, so the arrow / person icon can be placed correctly
 
-            updateOutOfScreenPosition();
+            new Handler().post(this::updateOutOfScreenPosition); // simple call does not display the pointer directly after position detection
         });
     }
 
