@@ -52,7 +52,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1' // to prevent duplicate class error
 
     implementation 'org.osmdroid:osmdroid-android:6.1.13'
