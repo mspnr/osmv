@@ -340,6 +340,8 @@ public class MainActivity extends AppCompatActivity {
         btnOverlay.setVisibility(showOverlayButton ? View.VISIBLE : View.GONE);
         if (!showOverlayButton)
             mapsCatalog.setOverlay(false);
+
+        outOfScreenPointer.turnOnOff(prefs.getBoolean("ExperimentalOutOfCenterPointer", false));
     }
 
     private void printoutDebugInfo(Location l1) {

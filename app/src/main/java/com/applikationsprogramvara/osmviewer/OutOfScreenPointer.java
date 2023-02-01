@@ -25,6 +25,7 @@ public class OutOfScreenPointer extends FrameLayout {
     private final int textViewDistanceID;
     private TextView textViewDistance;
     private OnClickListener clickToJump;
+    private boolean featureOn;
 
     public OutOfScreenPointer(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -43,6 +44,10 @@ public class OutOfScreenPointer extends FrameLayout {
         textViewDistance.setOnClickListener(this.clickToJump);
     }
 
+    public void turnOnOff(boolean on) {
+        this.featureOn = on;
+    }
+
     public void setClickToJump(View.OnClickListener clickToJump) {
         this.setOnClickListener(clickToJump);
         this.clickToJump = clickToJump;
@@ -50,9 +55,7 @@ public class OutOfScreenPointer extends FrameLayout {
 
     public void updatePosition(MapView map, MyLocationNewOverlay mLocationOverlay) {
 
-        if (textViewDistance == null) return;
-
-        if (mLocationOverlay == null) {
+        if (!featureOn || textViewDistance == null || mLocationOverlay == null) {
             hideView();
             return;
         }
@@ -128,7 +131,8 @@ public class OutOfScreenPointer extends FrameLayout {
     }
 
     private void hideView() {
-        textViewDistance.setVisibility(View.GONE);
+        if (textViewDistance != null)
+            textViewDistance.setVisibility(View.GONE);
         setVisibility(View.GONE);
     }
 

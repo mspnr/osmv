@@ -46,12 +46,16 @@
 
     </PreferenceCategory>
 
-    <!--
     <PreferenceCategory android:key="Experimental"
         android:title="@string/stg_cat_experimental">
 
+        <CheckBoxPreference android:key="ExperimentalOutOfCenterPointer"
+            android:title="Out of center pointer"
+            android:summary="Display pointer at the edge of the screen if tracking is on, but user location is outside of the screen"
+            app:defaultValue="false"
+            />
+
     </PreferenceCategory>
-    -->
 
     <PreferenceCategory android:title="@string/stg_cat_about" >
         <Preference
