@@ -1,4 +1,2 @@
-- adding joints to measuring polyline
-- back button exits measuring mode
-- making background of scale bar overlay white in topo-mode to make it more visible
-- adding hints to settings
+- adding experimental feature: display position outside of the screen
+- adding experimental feature: keep screen on
