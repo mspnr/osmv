@@ -44,11 +44,20 @@
         android:fitsSystemWindows="true"
         >
 
-        <include layout="@layout/main_buttons_panel" />
+        <include
+            layout="@layout/main_buttons_panel"
+            android:id="@+id/mainButtons"
+            />
 
-        <include layout="@layout/aux_buttons_panel" />
+        <include
+            layout="@layout/aux_buttons_panel"
+            android:id="@+id/auxButtons"
+            />
 
-        <include layout="@layout/text_labels_panel" />
+        <include
+            layout="@layout/text_labels_panel"
+            android:id="@+id/textLabelsPanel"
+            />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnDebug"
@@ -62,7 +71,10 @@
             android:layout_alignParentBottom="true"
             />
 
-        <include layout="@layout/debug_info_panel" />
+        <include
+            layout="@layout/debug_info_panel"
+            android:id="@+id/debugLayout"
+            />
 
 
     </RelativeLayout>

@@ -15,7 +15,10 @@
 
     tools:showIn="@layout/activity_main">
 
-    <include layout="@layout/collapsable_panel" />
+    <include
+        layout="@layout/collapsable_panel"
+        android:id="@+id/collapsiblePanel"
+        />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnOverlay"

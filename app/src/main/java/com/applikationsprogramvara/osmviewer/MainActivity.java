@@ -44,6 +44,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
 
+import com.applikationsprogramvara.osmviewer.databinding.ActivityMainBinding;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.location.GeocoderNominatim;
 import org.osmdroid.config.Configuration;
@@ -77,11 +79,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
-
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_SETTINGS = 151;
@@ -94,20 +91,21 @@ public class MainActivity extends AppCompatActivity {
     public static final int ANIMATION_SPEED_SLOW = 500;
     private MapsCatalog mapsCatalog;
 
-    @BindView(R.id.map) MapView map;
-    @BindView(R.id.tvDebugInfo) TextView tvDebugInfo;
-    @BindView(R.id.tvZoom) TextView tvZoom;
-    @BindView(R.id.tvSpeed) TextView tvSpeed;
-    @BindView(R.id.tvDistance) TextView tvDistance;
-    @BindView(R.id.tvAltitude) TextView tvAltitude;
-    @BindView(R.id.btnJumpToLocation) ImageButton btnJumpToLocation;
-    @BindView(R.id.btnGPS) ImageButton btnGPS;
-    @BindView(R.id.btnChangeSource) ImageButton btnChangeSource;
-    @BindView(R.id.userTouchSurface) UserTouchSurface userTouchSurface;
-    @BindView(R.id.btnRuler) ImageButton btnRuler;
-    @BindView(R.id.btnOverlay) ImageButton btnOverlay;
-    @BindView(R.id.mainLayout) View mainLayout;
-    @BindView(R.id.outOfScreenPointer) OutOfScreenPointer outOfScreenPointer;
+    private ActivityMainBinding binding;
+    MapView map;
+    TextView tvDebugInfo;
+    TextView tvZoom;
+    TextView tvSpeed;
+    TextView tvDistance;
+    TextView tvAltitude;
+    ImageButton btnJumpToLocation;
+    ImageButton btnGPS;
+    ImageButton btnChangeSource;
+    UserTouchSurface userTouchSurface;
+    ImageButton btnRuler;
+    ImageButton btnOverlay;
+    View mainLayout;
+    OutOfScreenPointer outOfScreenPointer;
 
     private EnhancedSharedPreferences prefs;
     private MyLocationNewOverlay mLocationOverlay;
@@ -142,12 +140,45 @@ public class MainActivity extends AppCompatActivity {
         //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
 
         //inflate and create the map
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
 
         transparentStatusAndNavigation();
 
 
-        ButterKnife.bind(this);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View mainView = binding.getRoot();
+        setContentView(mainView);
+
+        map = binding.map;
+        tvDebugInfo = binding.debugLayout.tvDebugInfo;
+        tvZoom = binding.mainButtons.tvZoom;
+        tvSpeed = binding.textLabelsPanel.tvSpeed;
+        tvDistance = binding.textLabelsPanel.tvDistance;
+        tvAltitude = binding.debugLayout.tvAltitude;
+        btnJumpToLocation = binding.mainButtons.btnJumpToLocation;
+        btnJumpToLocation.setOnClickListener(view -> jumpToLocation());
+        btnJumpToLocation.setOnLongClickListener(view -> followMode());
+        btnGPS = binding.mainButtons.btnGPS;
+        btnGPS.setOnClickListener(view -> switchGPS());
+        btnChangeSource = binding.auxButtons.btnChangeSource;
+        btnChangeSource.setOnClickListener(view -> clickChangeSource());
+        btnChangeSource.setOnLongClickListener(view -> selectSource());
+        userTouchSurface = binding.userTouchSurface;
+        btnRuler = binding.auxButtons.collapsiblePanel.btnRuler;
+        btnRuler.setOnClickListener(view -> switchRulerSimple());
+        btnRuler.setOnLongClickListener(view -> switchRulerContinuous());
+        btnOverlay = binding.auxButtons.btnOverlay;
+        btnOverlay.setOnClickListener(view -> clickSwitchOverlay());
+        btnOverlay.setOnLongClickListener(view -> switchOverlaySecondary());
+        mainLayout = binding.mainLayout;
+        outOfScreenPointer = binding.outOfScreenPointer;
+        binding.mainButtons.btnZoomOut.setOnClickListener(view -> clickZoomOut());
+        binding.mainButtons.btnZoomIn.setOnClickListener(view -> clickZoomIn());
+        binding.btnDebug.setOnClickListener(view -> showDebugInfo());
+        binding.btnDebug.setOnLongClickListener(view -> testclick());
+        binding.auxButtons.collapsiblePanel.btnSettings.setOnClickListener(view -> openSettings());
+        binding.auxButtons.collapsiblePanel.btnSettings.setOnLongClickListener(view -> showAuxButtons());
+
         prefs = EnhancedSharedPreferences.getDefaultSharedPreferences(this);
 
 
@@ -274,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         setDebugInfo(prefs.getBoolean("ShowDebugInfo", false));
 
         if (!BuildConfig.DEBUG)
-            findViewById(R.id.btnDebug).setVisibility(View.GONE);
+            binding.btnDebug.setVisibility(View.GONE);
 
         zoomAnimation = ValueAnimator.ofFloat(0f, 1f);
         zoomAnimation.setDuration(ANIMATION_SPEED_FAST);
@@ -287,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                     "initAddon",
                     Activity.class, MapView.class, FrameLayout.class);
 
-            FrameLayout placeholder1 = findViewById(R.id.placeholder1);
+            FrameLayout placeholder1 = binding.debugLayout.placeholder1;
             initAddon.invoke(null, this, map, placeholder1);
         } catch (Exception e) {
             Log.e("MyApp", e.toString());
@@ -453,12 +484,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @OnClick(R.id.btnChangeSource)
     void clickChangeSource() {
         mapsCatalog.nextMap();
     }
 
-    @OnLongClick(R.id.btnChangeSource)
     boolean selectSource() {
         mapsCatalog.selectSource(this);
         return true;
@@ -514,7 +543,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @OnClick(R.id.btnGPS)
     void switchGPS() {
         if ((mLocationOverlay == null) || !map.getOverlays().contains(mLocationOverlay)) {
             if (!permissionsGrantedAndLocationServiceEnabled(REQUEST_LOCATION_DISPLAY)) return;
@@ -562,7 +590,6 @@ public class MainActivity extends AppCompatActivity {
         return v;
     }
 
-    @OnClick(R.id.btnJumpToLocation)
     void jumpToLocation() {
         if ((mLocationOverlay != null) && map.getOverlays().contains(mLocationOverlay)) {
             GeoPoint myLocation = mLocationOverlay.getMyLocation();
@@ -695,7 +722,6 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d("MyApp3", "setRequiredCenter " + newCenter.getLatitude() + " " + newCenter.getLongitude());
     }
 
-    @OnLongClick(R.id.btnJumpToLocation)
     boolean followMode() {
         //followMode = b;
         //Toast.makeText(this, "followMode " + followMode, Toast.LENGTH_LONG).show();
@@ -739,12 +765,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.btnZoomOut)
     void clickZoomOut() {
         changeZoom(-1);
     }
 
-    @OnClick(R.id.btnZoomIn)
     void clickZoomIn() {
         changeZoom(+1);
     }
@@ -777,7 +801,6 @@ public class MainActivity extends AppCompatActivity {
         zoomAnimation.start();
     }
 
-    @OnLongClick(R.id.btnDebug)
     boolean testclick() {
 
 //        Convert latitude, longitude to spherical mercator x, y.
@@ -892,25 +915,22 @@ public class MainActivity extends AppCompatActivity {
         win.setAttributes(winParams);
     }
 
-    @OnClick(R.id.btnSettings)
     void openSettings() {
         startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_SETTINGS);
     }
 
-    @OnLongClick(R.id.btnSettings)
     boolean showAuxButtons() {
         collapseAuxPanel(btnRuler.getVisibility() == View.VISIBLE);
         return true;
     }
 
-    @OnClick(R.id.btnDebug)
     void showDebugInfo() {
         setDebugInfo(!showDebugInfo);
     }
 
     private void setDebugInfo(boolean b) {
         showDebugInfo = b;
-        for (View v: new View[] {tvDebugInfo, findViewById(R.id.placeholder1), tvZoom, tvAltitude})
+        for (View v: new View[] {tvDebugInfo, binding.debugLayout.placeholder1, tvZoom, tvAltitude})
             v.setVisibility(showDebugInfo ? View.VISIBLE : View.GONE);
 
         prefs.edit().putBoolean("ShowDebugInfo", showDebugInfo).apply();
@@ -1144,23 +1164,19 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Navigating to [" + lat + ", " + lon + "]", Toast.LENGTH_LONG).show();
     }
 
-    @OnClick(R.id.btnOverlay)
     void clickSwitchOverlay() {
         mapsCatalog.setOverlay(overlay == null);
     }
 
-    @OnLongClick(R.id.btnOverlay)
     boolean switchOverlaySecondary() {
         mapsCatalog.selectOverlay(this);
         return true;
     }
 
-    @OnClick(R.id.btnRuler)
     void switchRulerSimple() {
         switchRuler(false);
     }
 
-    @OnLongClick(R.id.btnRuler)
     boolean switchRulerContinuous() {
         switchRuler(true);
         return true;
@@ -1249,7 +1265,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void shiftScaleBar() {
         mScaleBarOverlay.setScaleBarOffset(
-                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getWidth() - findViewById(R.id.auxPanel).getX()),
+                (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getWidth() - binding.auxButtons.auxPanel.getX()),
                 (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getPaddingBottom())
         );
         map.invalidate();

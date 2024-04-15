@@ -34,6 +34,9 @@
         android:contentDescription="@string/btn_change_overlay_source"
         />
 
-    <include layout="@layout/collapsable_panel" />
+    <include
+        layout="@layout/collapsable_panel"
+        android:id="@+id/collapsiblePanel"
+        />
 
 </LinearLayout>

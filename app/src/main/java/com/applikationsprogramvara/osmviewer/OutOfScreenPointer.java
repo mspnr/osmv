@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.applikationsprogramvara.osmviewer.databinding.LayoutOutOfScreenPointerBinding;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -26,11 +29,12 @@ public class OutOfScreenPointer extends FrameLayout {
     private TextView textViewDistance;
     private OnClickListener clickToJump;
     private boolean featureOn;
+    private final LayoutOutOfScreenPointerBinding binding;
 
     public OutOfScreenPointer(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        View view = inflate(getContext(), R.layout.layout_out_of_screen_pointer, null);
-        addView(view);
+        binding = LayoutOutOfScreenPointerBinding.inflate(LayoutInflater.from(getContext()));
+        addView(binding.getRoot());
 
         TypedArray attribs = context.obtainStyledAttributes(attrs, R.styleable.OutOfScreenPointer);
         textViewDistanceID = attribs.getResourceId(R.styleable.OutOfScreenPointer_textViewDistance, -1);
@@ -82,10 +86,10 @@ public class OutOfScreenPointer extends FrameLayout {
         double angle = Math.atan2(userScreenPosition.y - map.getHeight() / 2f, userScreenPosition.x - map.getWidth() / 2f);
 
         float speed = userLocation.getSpeed();
-        findViewById(R.id.ivOosBubble).setRotation((float) Math.toDegrees(angle) + 90);
-        findViewById(R.id.ivOosStill).setVisibility(speed == 0 ? VISIBLE : GONE);
-        findViewById(R.id.ivOosMoving).setRotation(speed > 0 ? userLocation.getBearing() : 0);
-        findViewById(R.id.ivOosMoving).setVisibility(speed == 0 ? GONE : VISIBLE);
+        binding.ivOosBubble.setRotation((float) Math.toDegrees(angle) + 90);
+        binding.ivOosStill.setVisibility(speed == 0 ? VISIBLE : GONE);
+        binding.ivOosMoving.setRotation(speed > 0 ? userLocation.getBearing() : 0);
+        binding.ivOosMoving.setVisibility(speed == 0 ? GONE : VISIBLE);
 
         int halfSize = getContext().getResources().getDrawableForDensity(R.drawable.oos_bubble, (int) getResources().getDisplayMetrics().density).getIntrinsicWidth() / 2;
 
