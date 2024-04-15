@@ -13,6 +13,7 @@ android {
         versionCode 12
         versionName "1.7 23-02-09"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildFeatures {
@@ -56,13 +57,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1' // to prevent duplicate class error
 
-    implementation 'org.osmdroid:osmdroid-android:6.1.13'
+    implementation 'org.osmdroid:osmdroid-android:6.1.18'
     implementation 'com.github.MKergall:osmbonuspack:6.6.0'
 
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.preference:preference:1.2.1'
+
+    implementation "androidx.multidex:multidex:2.0.1"
+
 
     if (rootProject.file("osmviewer_addon").exists()) {
         debugImplementation project(':osmviewer_addon')
