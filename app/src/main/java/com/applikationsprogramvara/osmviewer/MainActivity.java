@@ -36,6 +36,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,9 +82,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
-
-    public static final int REQUEST_CODE_SETTINGS = 151;
-
 
     private static final int REQUEST_LOCATION_DISPLAY = 123;
     private static final int REQUEST_LOCATION_JUMP    = 124;
@@ -916,7 +915,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void openSettings() {
-        startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_SETTINGS);
+        resultLaunchSettings.launch(new Intent(this, SettingsActivity.class));
     }
 
     boolean showAuxButtons() {
@@ -936,20 +935,13 @@ public class MainActivity extends AppCompatActivity {
         prefs.edit().putBoolean("ShowDebugInfo", showDebugInfo).apply();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case REQUEST_CODE_SETTINGS:
-                    //recreate(); // dirty solution
-                    loadSettings();
-                    map.invalidate();
-                    break;
-            }
+    ActivityResultLauncher<Intent> resultLaunchSettings = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK) {
+            //recreate(); // dirty solution
+            loadSettings();
+            map.invalidate();
         }
-    }
+    });
 
     interface UnitCalcInterface {
         double speed(double speed_m_s);
