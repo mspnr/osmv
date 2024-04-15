@@ -1,6 +1,8 @@
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+
 plugins {
     id 'com.android.application'
-    id 'com.github.triplet.play' version '3.6.0'
+    id 'com.github.triplet.play' version '3.9.1'
 }
 
 android {
@@ -11,8 +13,8 @@ android {
         applicationId "com.applikationsprogramvara.osmviewer"
         minSdkVersion 16
         targetSdkVersion 34
-        versionCode 12
-        versionName "1.7 23-02-09"
+        versionCode 13
+        versionName "1.8 24-04-15"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -80,7 +82,7 @@ dependencies {
 play {
     track = 'beta' // alpha / beta / production
     releaseName = android.defaultConfig.versionName
-    releaseStatus = com.github.triplet.gradle.androidpublisher.ReleaseStatus.DRAFT
+    releaseStatus = ReleaseStatus.DRAFT
     defaultToAppBundles = true
     serviceAccountCredentials = file("../service-key.json")
 }
