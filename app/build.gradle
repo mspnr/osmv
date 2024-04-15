@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace "com.applikationsprogramvara.osmviewer"
     compileSdkVersion 33
 
     defaultConfig {
@@ -18,6 +19,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     signingConfigs {
