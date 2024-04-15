@@ -505,9 +505,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         } else {
+            boolean permanentlyDenied = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
+
             new AlertDialog.Builder(this)
                     .setTitle(R.string.dlg_deny_loc_perm_title)
-                    .setMessage(R.string.dlg_deny_loc_perm_message)
+                    .setMessage(permanentlyDenied ? R.string.dlg_permanent_deny_loc_perm_message : R.string.dlg_deny_loc_perm_message)
                     .setPositiveButton(R.string.btn_ok, null)
                     .show();
         }

@@ -42,6 +42,7 @@
 
     <string name="dlg_deny_loc_perm_title">What\'s happened?</string>
     <string name="dlg_deny_loc_perm_message">Without the location permission you will be not able to jump or to follow your current location on the map. Accept this request next time if you need these functions.</string>
+    <string name="dlg_permanent_deny_loc_perm_message">Without the location permission you will be not able to jump or to follow your current location on the map. Grant permissions in app settings.</string>
     <string name="btn_ok">OK</string>
     <string name="title_settings">Settings</string>
     <string name="toast_location_service_disabled">Location service disabled</string>
