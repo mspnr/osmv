@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace "com.applikationsprogramvara.osmviewer"
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.applikationsprogramvara.osmviewer"
-        minSdkVersion 16
-        targetSdkVersion 34
+        minSdkVersion 21
+        targetSdkVersion 35
         versionCode 13
         versionName "1.8 24-04-15"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -53,19 +53,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     namespace 'com.applikationsprogramvara.osmviewer'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1' // to prevent duplicate class error
+    implementation 'androidx.appcompat:appcompat:1.7.0' // upgrading to 1.7.0 require to raise SDK to 21, the last version before 1.7.0 is 1.6.1
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7' // keeping 2.5.1 to prevent duplicate class error 2.7.0 -> 19
 
-    implementation 'org.osmdroid:osmdroid-android:6.1.18'
-    implementation 'com.github.MKergall:osmbonuspack:6.6.0'
+    implementation 'org.osmdroid:osmdroid-android:6.1.20'
+    implementation 'com.github.MKergall:osmbonuspack:6.9.0'
 
     implementation 'androidx.preference:preference:1.2.1'
 
