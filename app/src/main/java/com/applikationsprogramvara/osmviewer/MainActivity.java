@@ -36,6 +36,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -328,6 +329,21 @@ public class MainActivity extends AppCompatActivity {
             parseGeoUri(intent.getData());
 
         outOfScreenPointer.setClickToJump(view -> jumpToLocation());
+
+        // Setup predictive back navigation (Android 13+)
+        OnBackPressedCallback backCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (isRulerActivated()) {
+                    switchRuler(false);
+                } else {
+                    // Allow default back behavior
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backCallback);
     }
 
     private void loadSettings() {
@@ -1263,13 +1279,6 @@ public class MainActivity extends AppCompatActivity {
                 (int) (getResources().getDisplayMetrics().density * 16 + mainLayout.getPaddingBottom())
         );
         map.invalidate();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (isRulerActivated())
-            switchRuler(false);
-        else super.onBackPressed();
     }
 
     private void updateOutOfScreenPosition() {
