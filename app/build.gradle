@@ -2,7 +2,7 @@ import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 
 plugins {
     id 'com.android.application'
-    id 'com.github.triplet.play' version '3.9.1'
+    id 'com.github.triplet.play' version '3.12.1'
 }
 
 android {
@@ -13,8 +13,8 @@ android {
         applicationId "com.applikationsprogramvara.osmviewer"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 13
-        versionName "1.8 24-04-15"
+        versionCode 14
+        versionName "1.8.1 25-10-26"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -61,8 +61,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.7.0' // upgrading to 1.7.0 require to raise SDK to 21, the last version before 1.7.0 is 1.6.1
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7' // keeping 2.5.1 to prevent duplicate class error 2.7.0 -> 19
+    implementation 'androidx.appcompat:appcompat:1.7.1' // upgrading to 1.7.0 require to raise SDK to 21, the last version before 1.7.0 is 1.6.1
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4' // keeping 2.5.1 to prevent duplicate class error 2.7.0 -> 19
 
     implementation 'org.osmdroid:osmdroid-android:6.1.20'
     implementation 'com.github.MKergall:osmbonuspack:6.9.0'
@@ -77,8 +77,10 @@ dependencies {
     }
 }
 
-// put keystore.properties and service-key.json to the project root folder
-// use gradle icon to call gradle start tool and use task publishBundle
+// how to publish:
+// 1. put keystore.properties and service-key.json to the project root folder
+// 2. bump versionCode and versionName, update app/src/main/play/release-notes/en-US/beta.txt
+// 3. use gradle icon to call gradle start tool and use task publishBundle
 play {
     track = 'beta' // alpha / beta / production
     releaseName = android.defaultConfig.versionName

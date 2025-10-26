@@ -1,2 +1,1 @@
 - bumping up versions of SDK and libraries
-- adding text for permanently denied permission
